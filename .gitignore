@@ -1,0 +1,10 @@
+*
+!*.*
+!*/
+!Makefile
+*.img
+*.x
+*.o
+*.sh
+saidas/
+*.pdf
