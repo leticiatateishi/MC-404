@@ -54,6 +54,10 @@ int processarEntrada(char* entrada, unsigned tamanho)
                 posicao = verificacao;
             palavra[0] = '\0';
         }
+        else if (entrada[posicao] == '#'){
+            while (entrada[posicao] != '\n')
+                posicao++;
+        }
         else{
             int tamanho_palavra = strlen(palavra);
             palavra[tamanho_palavra] = entrada[posicao];
@@ -61,30 +65,33 @@ int processarEntrada(char* entrada, unsigned tamanho)
             posicao++;
         }
     }
-    return 0;
+
+    return verificarErrosGramaticais();
 }
 
-Token criarToken(TipoDoToken t, char *p, unsigned l){
+Token criarToken(TipoDoToken t, char p[64], unsigned l){
     Token novoToken;
     novoToken.tipo = t;
-    novoToken.palavra = malloc(strlen(p)+1);
-    strcpy(novoToken.palavra, p);
     novoToken.linha = l;
+    novoToken.palavra = malloc(strlen(p)+3);
+    char novaPalavra[66]= "\"";
+    strcat(novaPalavra, p);
+    char aspas[2] = "\"";
+    strcat(novaPalavra, aspas);
+    strcpy(novoToken.palavra, novaPalavra);
     return novoToken;
 }
 
 
-char* reescreverPalavra (char* palavra){
+void reescreverPalavra (char *palavra){
     for(int i = 0; i < strlen(palavra); i++)
         palavra[i] = maiusculaParaMinuscula(palavra[i]);
-    return palavra;
 }
 
 
 int verificarPalavra(char* palavra, int numero_linha, char* entrada, int posicao){
-    char palavraReescrita[64];
-    strcpy(palavraReescrita, reescreverPalavra(palavra));
-    int tipo = definirTipoToken(palavraReescrita);
+    reescreverPalavra(palavra);
+    int tipo = definirTipoToken(palavra);
     if(tipo == 1){
         fprintf(stderr, "ERRO LEXICO: palavra inválida na linha %d!\n", numero_linha);
         return -1;
@@ -99,6 +106,7 @@ int verificarPalavra(char* palavra, int numero_linha, char* entrada, int posicao
     posicao++;
     return posicao;
 }
+
 
 char maiusculaParaMinuscula(char letra){
     switch (letra) {
@@ -179,6 +187,8 @@ char maiusculaParaMinuscula(char letra){
             break;
         case 'Z':
             letra = 'z';
+            break;
+        default:
             break;
     }
     return letra;

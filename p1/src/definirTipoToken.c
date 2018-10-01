@@ -49,23 +49,23 @@ int definirTipoToken (char* palavra){
 
 //  Retorna 1 se a palavra for um nome ou 0 caso contrário
 int eNome (char* palavra){
-    if(!(eDecimal(palavra[0])) && eAlfanumerico(palavra) && palavra[strlen(palavra)-1] != ':')
+    if(!(eDecimal(palavra[0])) && eAlfanumerico(palavra) && palavra[strlen(palavra)-1] != ':' && palavra[0] != '.')
         return 1;
     return 0;
 }
 
 //  Retorna 1 se a palavra for uma instrução ou 0 caso contrário
 int eInstrucao (char *palavra){
-    if (!(strcmp(palavra, "ld") || strcmp(palavra, "ldinv") || strcmp(palavra, "ldabs") || strcmp(palavra, "ldmq") || strcmp(palavra, "ldmqmx")
-       || strcmp(palavra, "stor") || strcmp(palavra, "jump") || strcmp(palavra, "jumpl") || strcmp(palavra, "jumpr") || strcmp(palavra, "add")
-       || strcmp(palavra, "addabs") || strcmp(palavra, "sub") || strcmp(palavra, "subabs") || strcmp(palavra, "mult") || strcmp(palavra, "div")
-       || strcmp(palavra, "lsh") || strcmp(palavra, "rsh") || strcmp(palavra, "storal") || strcmp(palavra, "storar")))  return 1;
+    if (strcmp(palavra, "ld") == 0 || strcmp(palavra, "ldinv") == 0 || strcmp(palavra, "ldabs") == 0 || strcmp(palavra, "ldmq") == 0 ||
+        strcmp(palavra, "ldmqmx") == 0 || strcmp(palavra, "store") == 0 || strcmp(palavra, "jump") == 0 || strcmp(palavra, "jumpl") == 0 ||
+        strcmp(palavra, "jumpr") == 0 || strcmp(palavra, "add") == 0 || strcmp(palavra, "addabs") == 0 || strcmp(palavra, "sub") == 0 ||
+        strcmp(palavra, "subabs") == 0 || strcmp(palavra, "mult") == 0 || strcmp(palavra, "div") == 0 || strcmp(palavra, "lsh") == 0 ||
+        strcmp(palavra, "rsh") == 0 || strcmp(palavra, "storal") == 0|| strcmp(palavra, "storar") == 0)  return 1;
     return 0;
 }
 
 //  Retorna 1 se a palavra é um rótulo ou 0 caso contrário
 int eDefinicaoRotulo (char* palavra){
-    // printf("%c\neh decimal: %d\neh alfanumerico: %d\n\n\n", palavra[strlen(palavra)-1], eDecimal(palavra[0]), eAlfanumerico(palavra));
     if(palavra[strlen(palavra)-1] == ':' && (eDecimal(palavra[0]) == 0) && eAlfanumerico(palavra))
         return 1;
     return 0;
@@ -75,13 +75,13 @@ int eDefinicaoRotulo (char* palavra){
 //  Retorna 1 se a palavra for composta apenas por caracteres alfanuméricos e '_'
 int eAlfanumerico (char* palavra){
     for (int i = 0; i < (strlen(palavra)-1); i++){
-        if (eDecimal(palavra[i]) || palavra[i] == '_' || palavra[i] == 'a' || palavra[i] == 'b' || palavra[i] == 'c'|| palavra[i] == 'd' ||
-              palavra[i] == 'e' || palavra[i] == 'f' || palavra[i] == 'g' || palavra[i] == 'h' || palavra[i] == 'i'|| palavra[i] == 'j' ||
-              palavra[i] == 'k' || palavra[i] == 'l' || palavra[i] == 'm' || palavra[i] == 'n' || palavra[i] == 'o'|| palavra[i] == 'p' ||
-              palavra[i] == 'q' || palavra[i] == 'r' || palavra[i] == 's' || palavra[i] == 't' || palavra[i] == 'u'|| palavra[i] == 'v' ||
-              palavra[i] == 'w' || palavra[i] == 'x' || palavra[i] == 'y' || palavra[i] == 'z') return 1;
+        if (!eDecimal(palavra[i]) && palavra[i] != '_' && palavra[i] != 'a' && palavra[i] != 'b' && palavra[i] != 'c' && palavra[i] != 'd' &&
+              palavra[i] != 'e' && palavra[i] != 'f' && palavra[i] != 'g' && palavra[i] != 'h' && palavra[i] != 'i' && palavra[i] != 'j' &&
+              palavra[i] != 'k' && palavra[i] != 'l' && palavra[i] != 'm' && palavra[i] != 'n' && palavra[i] != 'o' && palavra[i] != 'p' &&
+              palavra[i] != 'q' && palavra[i] != 'r' && palavra[i] != 's' && palavra[i] != 't' && palavra[i] != 'u' && palavra[i] != 'v' &&
+              palavra[i] != 'w' && palavra[i] != 'x' && palavra[i] != 'y' && palavra[i] != 'z') return 0;
     }
-    return 0;
+    return 1;
 }
 
 //  Retorna 1 se a palavra é uma diretiva ou 0 caso contrário
