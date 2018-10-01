@@ -28,9 +28,10 @@ enum errors
 
 int processarEntrada(char*, unsigned);
 Token criarToken(TipoDoToken t, char* p, unsigned l);
-int verificarPalavra(char* palavra, int numero_linha, char* entrada, int posicao);
+int verificarPalavra(char* palavra, int numero_linha);
 void reescreverPalavra (char* palavra);
 char maiusculaParaMinuscula(char letra);
+void adicionarAspas(char p[64], char novaPalavra[66]);
 
 int definirTipoToken (char* palavra);
 int eNome (char* palavra);
