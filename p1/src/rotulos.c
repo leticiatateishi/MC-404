@@ -9,6 +9,6 @@ unsigned getNumberOfRotulos() {
   return tamRotulos;
 }
 
-void adicionarRotulo(){
-
-}
+// void adicionarRotulo(){
+//
+// }

@@ -2,8 +2,8 @@
 #define ROTULOS_H
 
 typedef struct Rotulo{
-    char[50] nome;
-    char[10] endereco;
+    char* nome;
+    char* endereco;
 }Rotulo;
 
 #endif
