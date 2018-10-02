@@ -178,17 +178,15 @@ int tokenInstrucao (int posicao, Token atual){
 
     Token proximo = recuperaToken(posicao+1);
 
-    /*  Se a instrução for uma das seguintes, ela deve possuir apenas um argumento que represente
-     *  M[x], ou seja, este argumento deve ser um decimal, um hexadecimal ou um nome */
-    if (strcmp(atual.palavra, "\"add\"") == 0 || strcmp(atual.palavra, "\"addabs\"") == 0 ||
-    strcmp(atual.palavra, "\"sub\"") == 0 || strcmp(atual.palavra, "\"subabs\"") == 0 ||
-    strcmp(atual.palavra, "\"mult\"") == 0 || strcmp(atual.palavra, "\"div\"") == 0 ||
-    strcmp(atual.palavra, "\"ld\"") == 0 || strcmp(atual.palavra, "\"ldinv\"") == 0 ||
-    strcmp(atual.palavra, "\"ldabs\"") == 0 || strcmp(atual.palavra, "\"ldmqmx\"") == 0 ||
-    strcmp(atual.palavra, "\"store\"") == 0 || strcmp(atual.palavra, "\"jump\"") == 0 ||
-    strcmp(atual.palavra, "\"jumpl\"") == 0 || strcmp(atual.palavra, "\"jumpr\"") == 0 ||
-    strcmp(atual.palavra, "\"storal\"") == 0 || strcmp(atual.palavra, "\"storar\"") == 0){
+    /*  Retorna 1 se o token for uma instrução que não precisa de argumento */
+    if (strcmp(atual.palavra, "\"ldmq\"") == 0 || strcmp(atual.palavra, "\"lsh\"") == 0 || strcmp(atual.palavra, "\"rsh\"") == 0){
+        if (proximo.linha != atual.linha)
+            return 1;
+    }
 
+    /*  Se a instrução exige apenas um argumento que represente M[x], ou seja, este argumento
+     *  deve ser um decimal, um hexadecimal ou um nome */
+    else {
         if(posicao+1 >= getNumberOfTokens())
             return 0;
         Token proximo = recuperaToken(posicao+1);
@@ -199,10 +197,6 @@ int tokenInstrucao (int posicao, Token atual){
             return 2;
         return 0;
     }
-
-    /*  Retorna 1 se o token for uma instrução que não precisa de argumento */
-    if (proximo.linha != atual.linha)
-        return 1;
 
     return 0;
 

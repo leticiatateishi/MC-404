@@ -3,7 +3,7 @@
 
 /*  Funções referentes ao arquivo processarEntrada.c
  */
-int processarEntrada(char*, unsigned);
+int processarEntrada(char*, unsigned tamanho);
 
 Token criarToken(TipoDoToken t, char* p, unsigned l);
 
