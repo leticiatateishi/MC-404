@@ -79,26 +79,26 @@ int tokenDiretiva (int posicao, Token atual){
         return 0;
 
     /*  Retorna 1 se o argumento de .org for um hexadecimal ou um decimal menor que 1023 */
-    if (strcmp (atual.palavra, "\".org\"") == 0){
+    if (strcmp (atual.palavra, ".org") == 0){
         if (argumento1.tipo == 1003 || (argumento1.tipo == 1004 && !decimalMaiorQue1023(argumento1)))
             return 1;
     }
 
     /*  Retorna 1 se o argumento de .word for um hexadecimal, um decimal ou um nome */
-    else if (strcmp(atual.palavra, "\".word\"") == 0){
+    else if (strcmp(atual.palavra, ".word") == 0){
         if (argumento1.tipo == 1003 || argumento1.tipo == 1004 || argumento1.tipo == 1005)
             return 1;
     }
 
     /*  Retorna 1 se o argumento de .align for um decimal menor que 1023*/
-    else if (strcmp(atual.palavra, "\".align\"") == 0){
+    else if (strcmp(atual.palavra, ".align") == 0){
         if (argumento1.tipo == 1004 && !decimalMaiorQue1023(argumento1))
             return 1;
     }
 
     /*  Retorna 1 se o primeiro argumento de .set for um nome e o segundo argumento for um decimal
      *  ou um hexadecimal */
-    else if (strcmp(atual.palavra, "\".set\"") == 0){
+    else if (strcmp(atual.palavra, ".set") == 0){
 
         /*  Verifica se existe um segundo argumento */
         if ((posicao + 2) >= getNumberOfTokens())
@@ -112,7 +112,7 @@ int tokenDiretiva (int posicao, Token atual){
 
     /*  Retorna 1 se o primeiro argumento de .wfill for um decimal menor do que 1023 e se o segundo
      *  argumento um hexadecimal, um decimal ou um nome */
-    else if (strcmp(atual.palavra, "\".wfill\"") == 0){
+    else if (strcmp(atual.palavra, ".wfill") == 0){
 
         /*  Verifica se existe um segundo argumento */
         if ((posicao + 2) >= getNumberOfTokens())
@@ -153,21 +153,9 @@ int tokenRotulo (int posicao, Token atual){
 /*  Retorna 1 se a palavra do token for um decimal maior que 1023 ou 0 caso contrário
  */
 int decimalMaiorQue1023 (Token token){
-    char palavra[64];
-    strcpy(palavra, token.palavra);
-    removerAspas(palavra);
-    if (atoi(palavra) > 1023)
+    if (atoi(token.palavra) > 1023)
         return 1;
     return 0;
-}
-
-
-/*  Recebe como parâmetro uma palavra com aspas e retorna a mesma palavra sem aspas
- */
-void removerAspas(char* palavra){
-    for(int i = 0; i < strlen(palavra)-2; i++)
-        palavra[i] = palavra[i+1];
-    palavra[strlen(palavra)-1] = '\0';
 }
 
 
@@ -179,7 +167,7 @@ int tokenInstrucao (int posicao, Token atual){
     Token proximo = recuperaToken(posicao+1);
 
     /*  Retorna 1 se o token for uma instrução que não precisa de argumento */
-    if (strcmp(atual.palavra, "\"ldmq\"") == 0 || strcmp(atual.palavra, "\"lsh\"") == 0 || strcmp(atual.palavra, "\"rsh\"") == 0){
+    if (strcmp(atual.palavra, "ldmq") == 0 || strcmp(atual.palavra, "lsh") == 0 || strcmp(atual.palavra, "rsh") == 0){
         if (proximo.linha != atual.linha)
             return 1;
     }

@@ -101,21 +101,9 @@ Token criarToken(TipoDoToken t, char p[64], unsigned l){
     Token novoToken;
     novoToken.tipo = t;
     novoToken.linha = l;
-    novoToken.palavra = malloc(strlen(p)+3);
-    char novaPalavra[66] = "\"";
-    adicionarAspas(p, novaPalavra);
-    strcpy(novoToken.palavra, novaPalavra);
+    novoToken.palavra = malloc(strlen(p));
+    strcpy(novoToken.palavra, p);
     return novoToken;
-}
-
-
-/*  Recebe a palavra original e uma string com apenas aspas.
- *  Retorna a string reescrita com aspas no começo e no final da palavra.
- */
-void adicionarAspas(char p[64], char novaPalavra[66]){
-    strcat(novaPalavra, p);
-    char aspas[2] = "\"";
-    strcat(novaPalavra, aspas);
 }
 
 

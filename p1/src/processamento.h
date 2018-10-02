@@ -7,8 +7,6 @@ int processarEntrada(char*, unsigned tamanho);
 
 Token criarToken(TipoDoToken t, char* p, unsigned l);
 
-void adicionarAspas(char p[64], char novaPalavra[66]);
-
 int verificarPalavra(char* palavra, int numero_linha);
 
 void reescreverPalavra (char* palavra);
@@ -35,8 +33,6 @@ int eHexadecimal(char* palavra);
 int eDecimal(char letra);
 
 int palavraEDecimal(char* palavra);
-
-void removerAspas(char* palavra);
 
 
 /*  Funções referentes ao arquivo verificarErrosGramaticais.c
