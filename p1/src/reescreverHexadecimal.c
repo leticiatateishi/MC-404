@@ -4,15 +4,23 @@
 #include <math.h>
 #include <string.h>
 
-char* reescreverHexadecimal (Token token){
 
-    if (token.tipo == 1000)
-        return instrucaoHexadecimal(token.palavra);
+char* reescreverHexadecimal (char* hexadecimal){
 
-    else if (token.tipo == 1004)
-        return decimalHexadecimal(token.palavra);
+    char hexadecimalReescrito[4];
 
-    return NULL;
+    if (strlen(hexadecimal) == 5){
+        for (int i = 0; i < 3; i++)
+            hexadecimalReescrito[i] = hexadecimal[i+2];
+    }
+
+    else{
+        int i, j = 0;
+        while (hexadecimal[i+2] == '0')
+            i++;
+        while (j  )
+    }
+
 }
 
 
@@ -81,7 +89,7 @@ char* instrucaoHexadecimal (char* instrucao){
 
 
 char* decimalHexadecimal (char* decimal){
-    char numeroHexadecimal[5];
+    char numeroHexadecimal[4];
     char numero[64];
     strcpy(numero, decimal);
     removerAspas(numero);
