@@ -9,6 +9,18 @@ unsigned getNumberOfRotulos() {
   return tamRotulos;
 }
 
-// void adicionarRotulo(){
-//
-// }
+Rotulo getRotulo(int posicao){
+    if (posicao >= tamRotulos)
+        return NULL;
+    return rotulos[posicao];
+}
+
+void adicionarRotulo(Rotulo rotulo){
+    rotulos[tamRotulos] = rotulo;
+    tamRotulos++;
+}
+
+Rotulo criarRotulo(char* palavra, char* endereco){
+    Rotulo novoRotulo;
+    strcpy(novoRotulo.nome, palavra);
+}

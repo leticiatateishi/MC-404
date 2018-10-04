@@ -13,17 +13,21 @@
         *  1 caso haja erro na montagem; (imprima o emath.crro em stderr)
         *  0 caso não haja erro.
  */
+
+
 int emitirMapaDeMemoria()
 {
     char mapaDeMemoria[4096];
     int posicao = 0;
-    Token token = recuperaToken(0);
+    char enderecoAtual[] = "000";
+    /*  Flag que determina se é a primeira ou segunda vez que montamos o mapa de memória.
+     *  É igual a 0 se for a primeira vez, ou seja, devemos armazenar todos os rótulos na lista
+     *  que armazena rótulos e suas posições. É igual a 1 se for a segunda vez, ou seja, não
+     *  precisamos mais armazenar todos os rótulos. */
+    int verificarRotulos = 0;
 
-    if (strcmp(token.palavra, ".org")){
-        mapaDeMemoria[0] = mapaDeMemoria[1] = mapaDeMemoria[2] = '0';
-        posicao += 3;
-    }
 
+    //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
     for (unsigned int i = 0; i < getNumberOfTokens(); i++){
 
         token = recuperaToken(i);
@@ -41,13 +45,14 @@ int emitirMapaDeMemoria()
         }
 
         /*  Se o token for uma definição de rótulo. */
-        else if (token.tipo == 1002){
-
+        else if (token.tipo == 1002 && (verificarRotulos == 0)){
+            adicionarRotulo(criarRotulo(token.palavra, enderecoAtual));
         }
 
         /*  Se o token for um hexadecimal. */
         else if (token.tipo == 1003){
-
+            escreverMapaDeMemoria(token.palavra, mapaDeMemoria, posicao);
+            posicao += 3;
         }
 
         /*  Se o token for um decimal. */
@@ -59,17 +64,48 @@ int emitirMapaDeMemoria()
 
         /*  Se o token for um nome. */
         else if (token.tipo == 1005){
+            if (verificarRotulos == 0){
 
+            }
+            else{
+
+            }
         }
+
+        if (posicaoPalavra(posicao)){
+            mapaDeMemoria[posicao] = '\n';
+        }
+        else
+            mapaDeMemoria[posicao] = ' ';
+        posicao++;
+        incrementarHexadecimal(enderecoAtual);
     }
 
     return 0;
 }
 
 
+
 void escreverMapaDeMemoria (char* substring, char* mapaDeMemoria, int posicao){
     for(int i = 0; i < strlen(substring); i++){
         mapaDeMemoria[posicao+i] = substring[i];
-
     }
+}
+
+
+/*  Retorna 1 se a posição atual for o final da palavra da direita, ou 0 se a posição atual
+ *  for o final de uma palavra da esquerda.
+ *  Para verificar se estamos escrevendo a palavra da esquerda ou da direita:
+ *  Verificar se a posicao após a escrita do endereço é múltiplo de 13. Se for, estamos na palavra
+ *  da direita e devemos pular uma linha. Se não for, estamos na palavra da esquerda e devemos
+ *  adicionar um espaço.
+ */
+int posicaoPalavra (int posicao){
+    int i = 1;
+    while (13*i <= posicao){
+        if (13*i == posicao)
+            return 1;
+        i++;
+    }
+    return 1;
 }

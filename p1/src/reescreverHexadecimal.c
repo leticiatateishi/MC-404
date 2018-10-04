@@ -15,11 +15,15 @@ char* reescreverHexadecimal (char* hexadecimal){
     }
 
     else{
-        int i, j = 0;
-        while (hexadecimal[i+2] == '0')
+        int i = 2;
+        while (hexadecimal[i] == '0')
             i++;
-        while (j  )
+        int j = i;
+        while (j < strlen(hexadecimal))
+            hexadecimalReescrito[j-i] = hexadecimal[j];
     }
+
+    return hexadecimalReescrito;
 
 }
 
@@ -90,10 +94,7 @@ char* instrucaoHexadecimal (char* instrucao){
 
 char* decimalHexadecimal (char* decimal){
     char numeroHexadecimal[4];
-    char numero[64];
-    strcpy(numero, decimal);
-    removerAspas(numero);
-    int valor = atoi(numero);
+    int valor = atoi(decimal);
     int quociente;
     int posicao = 0;
 
@@ -110,18 +111,13 @@ char* decimalHexadecimal (char* decimal){
 
 
 char hexadecimal (int numero){
-    if (numero == 10)
-        return 'A';
-    else if (numero == 11)
-        return 'B';
-    else if (numero == 12)
-        return 'C';
-    else if (numero == 13)
-        return 'D';
-    else if (numero == 14)
-        return 'E';
-    else if (numero == 15)
-        return 'F';
+    if (numero >= 10)
+        return (numero - 10 + 'A');
     else
         return (numero + '0');
+}
+
+
+char* incrementarHexadecimal (char* hexadecimal){
+
 }
