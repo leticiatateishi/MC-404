@@ -26,59 +26,70 @@ int emitirMapaDeMemoria()
      *  precisamos mais armazenar todos os rótulos. */
     int verificarRotulos = 0;
 
+    for (int j = 0; j < 2; j++){
 
-    //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
-    for (unsigned int i = 0; i < getNumberOfTokens(); i++){
+        //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
+        for (unsigned int i = 0; i < getNumberOfTokens(); i++){
 
-        token = recuperaToken(i);
+            token = recuperaToken(i);
 
-        /*  Se o token for uma instrução. */
-        if (token.tipo == 1000){
-            char* instrucao = instrucaoHexadecimal(token.palavra)
-            escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
-            posicao += 2;
-        }
+            /*  Se o token for uma instrução. */
+            if (token.tipo == 1000){
+                char* instrucao = instrucaoHexadecimal(token.palavra)
+                escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
+                posicao += 2;
+            }
 
-        /*  Se o token for uma diretiva. */
-        else if (token.tipo == 1001){
+            /*  Se o token for uma diretiva. */
+            else if (token.tipo == 1001){
 
-        }
+            }
 
-        /*  Se o token for uma definição de rótulo. */
-        else if (token.tipo == 1002 && (verificarRotulos == 0)){
-            adicionarRotulo(criarRotulo(token.palavra, enderecoAtual));
-        }
+            /*  Se o token for uma definição de rótulo. */
+            else if (token.tipo == 1002 && (verificarRotulos == 0)){
+                adicionarRotulo(criarRotulo(token.palavra, enderecoAtual));
+            }
 
-        /*  Se o token for um hexadecimal. */
-        else if (token.tipo == 1003){
-            escreverMapaDeMemoria(token.palavra, mapaDeMemoria, posicao);
-            posicao += 3;
-        }
+            /*  Se o token for um hexadecimal. */
+            else if (token.tipo == 1003){
+                escreverMapaDeMemoria(token.palavra, mapaDeMemoria, posicao);
+                posicao += 3;
+            }
 
-        /*  Se o token for um decimal. */
-        else if (token.tipo == 1004){
-            char* hexa = decimalHexadecimal(token.palavra);
-            escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
-            posicao += 3;
-        }
+            /*  Se o token for um decimal. */
+            else if (token.tipo == 1004){
+                char* hexa = decimalHexadecimal(token.palavra);
+                escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
+                posicao += 3;
+            }
 
-        /*  Se o token for um nome. */
-        else if (token.tipo == 1005){
-            if (verificarRotulos == 0){
+            /*  Se o token for um nome. */
+            else if (token.tipo == 1005){
+                if (verificarRotulos == 0)
+                    escreverMapaDeMemoria("000", mapaDeMemoria, posicao);
+                else
+                    escreverMapaDeMemoria(getEndereco(token.palavra, mapaDeMemoria, posicao));
+                posicao += 3;
+            }
 
+            if (posicaoPalavra(posicao)){
+                mapaDeMemoria[posicao] = '\n';
+                incrementarHexadecimal(enderecoAtual);
+                if (posicao+1 <= getNumberOfTokens() && (recuperaToken(posicao+1)).tipo != 1001){
+                    escreverMapaDeMemoria(enderecoAtual, mapaDeMemoria, posicao);
+                    escreverMapaDeMemoria(" ", mapaDeMemoria, posicao+3);
+                    posicao += 3;
+                }
+                posicao++;
             }
             else{
-
+                mapaDeMemoria[posicao] = ' ';
             }
+            posicao++;
         }
 
-        if (posicaoPalavra(posicao)){
-            mapaDeMemoria[posicao] = '\n';
-        }
-        else
-            mapaDeMemoria[posicao] = ' ';
-        posicao++;
-        incrementarHexadecimal(enderecoAtual);
+        verificarRotulos = 1;
+
     }
 
     return 0;

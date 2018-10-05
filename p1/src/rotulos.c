@@ -23,4 +23,14 @@ void adicionarRotulo(Rotulo rotulo){
 Rotulo criarRotulo(char* palavra, char* endereco){
     Rotulo novoRotulo;
     strcpy(novoRotulo.nome, palavra);
+    strcpy(novoRotulo.endereco, endereco);
+    return novoRotulo;
+}
+
+char* getEndereco (char* palavra){
+    for (int i = 0; i < getNumberOfRotulos(); i++){
+        if (strcmp(palavra, rotulos[i].nome) == 0)
+            return rotulos[i].endereco;
+    }
+    return NULL;
 }
