@@ -90,8 +90,8 @@ int processarEntrada(char* entrada, unsigned tamanho){
         }
     }
 
-    return 0;
-    // return verificarErrosGramaticais();
+    // return 0;
+    return verificarErrosGramaticais();
 }
 
 

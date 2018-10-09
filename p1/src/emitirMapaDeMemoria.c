@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 
+
 /*  O mapa de memória é composto por 13 dígitos: os 3 primeiros indicam o endereço, e os 10 últimos
  *  representam duas instruções do IAS. */
 
@@ -21,6 +22,8 @@
 int emitirMapaDeMemoria()
 {
 
+    // mapaDeMemoria = malloc(4096*sizeof(char));
+    // mapaDeMemoria[0] = '\0';
     int posicao = 0;
     char enderecoAtual[] = "000";
     /*  Flag que determina se é a primeira ou segunda vez que montamos o mapa de memória.
@@ -28,24 +31,47 @@ int emitirMapaDeMemoria()
      *  que armazena rótulos e suas posições. É igual a 1 se for a segunda vez, ou seja, não
      *  precisamos mais armazenar todos os rótulos. */
     int verificarRotulos = 0;
+    Token token;
 
     for (int j = 0; j < 2; j++){
 
-        //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
-        for (unsigned int i = 0; i < getNumberOfTokens(); i++){
+        if (getNumberOfTokens() > 0){
+            token = recuperaToken(0);
+            if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))){
+                strcat(mapaDeMemoria, enderecoAtual);
+                posicao += 3;
+            }
+        }
 
-            Token token = recuperaToken(i);
+        //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
+        for (int i = 0; i < getNumberOfTokens(); i++){
+
+            token = recuperaToken(i);
+            if (posicaoMultiplaDe(posicao, 13)){
+                if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))){
+                    strcat(mapaDeMemoria, "\n");
+                    incrementarHexadecimal(enderecoAtual);
+                    strcat(mapaDeMemoria, enderecoAtual);
+                    printf("Mapa com endereco novo:\n %s\n", mapaDeMemoria);
+                    // escreverMapaDeMemoria(enderecoAtual, posicao);
+                    posicao += 3;
+                }
+            }
+
 
             /*  Se o token for uma instrução. */
             if (token.tipo == 1000){
                 char* instrucao = reescreverHexadecimal(token.palavra);
-                escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
+                escreverMapaDeMemoria(instrucao, posicao);
                 posicao += 2;
             }
 
             /*  Se o token for uma diretiva. */
             else if (token.tipo == 1001){
-
+                reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos);
+                // if (diretiva != NULL){
+                //     escreverMapaDeMemoria(diretiva, posicao);
+                // }
             }
 
             /*  Se o token for uma definição de rótulo. */
@@ -53,6 +79,7 @@ int emitirMapaDeMemoria()
                 Rotulo novoRotulo;
                 strcpy(novoRotulo.endereco, enderecoAtual);
                 strcpy(novoRotulo.nome, token.palavra);
+                printf("Rotulo adicionado: %s - %s\n", novoRotulo.nome, novoRotulo.endereco);
                 adicionarRotulo(novoRotulo);
             }
 
@@ -101,16 +128,11 @@ int emitirMapaDeMemoria()
     printf("%s\n", mapaDeMemoria);
     for (int k = 0; k < getNumberOfTokens(); k++)
         free((recuperaToken(k)).palavra);
+    // free(mapaDeMemoria);
     return 0;
 }
 
 
-
-void escreverMapaDeMemoria (char* substring, char* mapaDeMemoria, int posicao){
-    for(int i = 0; i < strlen(substring); i++){
-        mapaDeMemoria[posicao+i] = substring[i];
-    }
-}
 
 
 /*  Retorna 1 se a posição atual for o final da palavra da direita, ou 0 se a posição atual

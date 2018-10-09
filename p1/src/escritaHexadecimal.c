@@ -6,8 +6,7 @@
 #include <stdlib.h>
 
 
-char* reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos){
-    char *palavraFinal = malloc(12*sizeof(char));
+void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos){
 
     if (strcmp(diretiva, ".align") == 0) {
         while (!posicaoMultiplaDe(*posicao, 13)){
@@ -17,8 +16,8 @@ char* reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, i
         int numero = (int)strtol(enderecoAtual, NULL, 16);
         while (numero % atoi((recuperaToken(*i+1)).palavra) != 0)
             numero++;
-        sprintf(enderecoAtual, "%d", numero);
-        enderecoAtual = reescreverDecimal(enderecoAtual);
+        sprintf(enderecoAtual, "%x", numero);
+        // enderecoAtual = reescreverDecimal(enderecoAtual);
     }
 
     else if (strcmp(diretiva, ".org") == 0){
@@ -28,30 +27,37 @@ char* reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, i
         }
         Token argumento = recuperaToken(*i+1);
         if (argumento.tipo == 1004)
-            strcpy(enderecoAtual, reescreverDecimal(argumento.palavra));
+            sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
+            // strcpy(enderecoAtual, reescreverDecimal(argumento.palavra));
         else
             strcpy(enderecoAtual, argumento.palavra);
     }
 
     else if (strcmp(diretiva, ".set") == 0){
-        Token segundoArgumento = recuperaToken(*i+2);
-        tipoNome novoNome;
-        strcpy(novoNome.nome, (recuperaToken(*i+1)).palavra);
-        if (segundoArgumento.tipo == 1004)
-            strcpy(novoNome.valor, reescreverDecimal(segundoArgumento.palavra));
-        else
-            strcpy(novoNome.valor, segundoArgumento.palavra);
-        adicionarNome(novoNome);
+        if (verificarRotulos == 0){
+            // printf("Novo nome adicionado: %s\n", );
+            Token segundoArgumento = recuperaToken(*i+2);
+            tipoNome novoNome;
+            strcpy(novoNome.nome, (recuperaToken(*i+1)).palavra);
+            if (segundoArgumento.tipo == 1004)
+                sprintf(novoNome.valor, "%x", atoi(segundoArgumento.palavra));
+                // strcpy(novoNome.valor, reescreverDecimal(segundoArgumento.palavra));
+            else
+                strcpy(novoNome.valor, segundoArgumento.palavra);
+            adicionarNome(novoNome);
+        }
         *i += 2;
     }
 
     else if (strcmp(diretiva, ".word") == 0){
-        char* palavraHexa = malloc(12*sizeof(char));
+        char palavraHexa[64];
         Token argumento = recuperaToken(*i+1);
 
         // Hexadecimal
-        if (argumento.tipo == 1003)
-            strcpy(palavraHexa, argumento.palavra);
+        if (argumento.tipo == 1003){
+            strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
+            printf(".word seguido de hexadecimal %s de tamanho %ld\n", palavraHexa, strlen(palavraHexa));
+        }
 
         // Nome
         else if (argumento.tipo == 1005){
@@ -63,20 +69,26 @@ char* reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, i
 
         // Decimal
         else
-            strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
+            sprintf(palavraHexa, "%x", atoi(argumento.palavra));
+            // strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
 
         int j = 0;
-        printf("%ld\n", strlen(palavraHexa));
+        // printf("tamanho: %ld\n", strlen(palavraHexa));
         while (j < 10-strlen(palavraHexa)){
-            palavraFinal[j] = '0';
+            strcat(mapaDeMemoria, "0");
+            // printf("mapa dentro do loop: %s\n", mapaDeMemoria);
+            // printf("aaaaaaaaaaaa\n");
+            // mapaDeMemoria[*posicao] = '0';
+            (*posicao)++;
             j++;
         }
-        strcat(palavraFinal, palavraHexa);
-        return palavraFinal;
+        strcat(mapaDeMemoria, palavraHexa);
+        // escreverMapaDeMemoria(palavraHexa, *posicao);
+        *posicao += strlen(palavraHexa);
     }
 
     else if (strcmp(diretiva, ".wfill") == 0){
-        char* palavraHexa = malloc(12*sizeof(char));
+        char palavraHexa[12];
         Token argumento = recuperaToken(*i+2);
 
         // Hexadecimal
@@ -95,28 +107,47 @@ char* reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, i
         else
             strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
 
+        while (!posicaoMultiplaDe(*posicao, 13)){
+            mapaDeMemoria[*posicao] = '0';
+            *posicao += 1;
+        }
         int j = 0;
-        while (j < 10-strlen(palavraHexa)){
-            palavraFinal[j] = '0';
-            j++;
-        }
-        strcat(palavraFinal, enderecoAtual);
-        strcat(palavraFinal, palavraHexa);
 
-        for(int k = 1; k < atoi((recuperaToken(*i+1)).palavra); k++){
-            enderecoAtual = incrementarHexadecimal(enderecoAtual);
-            strcat(palavraFinal, enderecoAtual);
-            strcat(palavraFinal, palavraHexa);
+        for (int k = 0; k < atoi(recuperaToken(*i+1).palavra); k++){
+            incrementarHexadecimal(enderecoAtual);
+            escreverMapaDeMemoria(enderecoAtual, *posicao);
+            while (j < 10-strlen(palavraHexa)){
+                mapaDeMemoria[*posicao] = '0';
+                *posicao += 1;
+                j++;
+            }
+            escreverMapaDeMemoria(palavraHexa, *posicao);
         }
-        return palavraFinal;
+        // strcat(palavraFinal, enderecoAtual);
+        // strcat(palavraFinal, palavraHexa);
+
+        // for(int k = 1; k < atoi((recuperaToken(*i+1)).palavra); k++){
+        //     enderecoAtual = incrementarHexadecimal(enderecoAtual);
+        //     strcat(palavraFinal, enderecoAtual);
+        //     strcat(palavraFinal, palavraHexa);
+        // }
+        // return palavraFinal;
     }
-    return NULL;
+    // return NULL;
+}
+
+
+void escreverMapaDeMemoria (char* substring, int posicao){
+    // for(int i = 0; i < strlen(substring); i++){
+    //     mapaDeMemoria[posicao+i] = substring[i];
+    // }
+    strcat(mapaDeMemoria, substring);
 }
 
 
 char* reescreverHexadecimal (char* hexadecimal){
 
-    char *hexadecimalReescrito = malloc(4*sizeof(char));
+    static char hexadecimalReescrito[64];
 
     if (strlen(hexadecimal) == 5){
         for (int i = 0; i < 3; i++)
@@ -124,17 +155,23 @@ char* reescreverHexadecimal (char* hexadecimal){
     }
 
     else{
-        int i = 2;
+        long i = 2;
         while (hexadecimal[i] == '0')
             i++;
-        int j = i;
-        while (j < strlen(hexadecimal))
+        long j = i;
+        while (j < strlen(hexadecimal)){
             hexadecimalReescrito[j-i] = hexadecimal[j];
+            j++;
+        }
+        hexadecimalReescrito[j-i] = '\0';
     }
 
+    // printf("Hexadecimal reescrito (sem o 0x): %s\n", hexadecimalReescrito);
     return hexadecimalReescrito;
 
 }
+
+
 
 
 char* reescreverInstrucao (char* instrucao){
@@ -223,13 +260,14 @@ char* reescreverDecimal (char* decimal){
 }
 
 
-char* incrementarHexadecimal (char* hexadecimal){
-    char* numeroIncrementado = malloc(12*sizeof(char));
+void incrementarHexadecimal (char* hexadecimal){
+    // char numeroIncrementado[12];
     int numero = (int)strtol(hexadecimal, NULL, 16);
+    printf("endereco atual em int: %d e em hex: %s\n", numero, hexadecimal);
     numero++;
-    sprintf(numeroIncrementado, "%d", numero);
-    numeroIncrementado = reescreverDecimal(numeroIncrementado);
-    return numeroIncrementado;
+    sprintf(hexadecimal, "%x", numero);
+    // numeroIncrementado = reescreverDecimal(numeroIncrementado);
+    // return numeroIncrementado;
 }
 
 
@@ -262,13 +300,13 @@ char* incrementarHexadecimal (char* hexadecimal){
  *  adicionar um espaço.
  */
  int posicaoMultiplaDe (int posicao, int multiplo){
-     int i = 0;
+     int i = 1;
      while (multiplo*i <= posicao){
          if (multiplo*i == posicao)
              return 1;
          i++;
      }
-     return 1;
+     return 0;
  }
 
 // }
