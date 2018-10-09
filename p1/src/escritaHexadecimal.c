@@ -261,11 +261,14 @@ char* reescreverDecimal (char* decimal){
 
 
 void incrementarHexadecimal (char* hexadecimal){
+    if (hexadecimal[2] != 'c'){
+        int digito =
+    }
     // char numeroIncrementado[12];
-    int numero = (int)strtol(hexadecimal, NULL, 16);
-    printf("endereco atual em int: %d e em hex: %s\n", numero, hexadecimal);
-    numero++;
-    sprintf(hexadecimal, "%x", numero);
+    // int numero = (int)strtol(hexadecimal, NULL, 16);
+    // printf("endereco atual em int: %d e em hex: %s\n", numero, hexadecimal);
+    // numero++;
+    // sprintf(hexadecimal, "%x", numero);
     // numeroIncrementado = reescreverDecimal(numeroIncrementado);
     // return numeroIncrementado;
 }
