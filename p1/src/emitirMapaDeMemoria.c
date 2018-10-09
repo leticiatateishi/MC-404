@@ -1,6 +1,9 @@
 #include "montador.h"
+#include "mapaDeMemoria.h"
 #include "rotulos.h"
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 
 /*  O mapa de memória é composto por 13 dígitos: os 3 primeiros indicam o endereço, e os 10 últimos
@@ -17,7 +20,7 @@
 
 int emitirMapaDeMemoria()
 {
-    char mapaDeMemoria[4096];
+
     int posicao = 0;
     char enderecoAtual[] = "000";
     /*  Flag que determina se é a primeira ou segunda vez que montamos o mapa de memória.
@@ -31,11 +34,11 @@ int emitirMapaDeMemoria()
         //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
         for (unsigned int i = 0; i < getNumberOfTokens(); i++){
 
-            token = recuperaToken(i);
+            Token token = recuperaToken(i);
 
             /*  Se o token for uma instrução. */
             if (token.tipo == 1000){
-                char* instrucao = instrucaoHexadecimal(token.palavra)
+                char* instrucao = reescreverHexadecimal(token.palavra);
                 escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
                 posicao += 2;
             }
@@ -50,42 +53,42 @@ int emitirMapaDeMemoria()
                 adicionarRotulo(criarRotulo(token.palavra, enderecoAtual));
             }
 
-            /*  Se o token for um hexadecimal. */
-            else if (token.tipo == 1003){
-                escreverMapaDeMemoria(token.palavra, mapaDeMemoria, posicao);
-                posicao += 3;
-            }
+            // /*  Se o token for um hexadecimal. */
+            // else if (token.tipo == 1003){
+            //     escreverMapaDeMemoria(token.palavra, mapaDeMemoria, posicao);
+            //     posicao += 3;
+            // }
+            //
+            // /*  Se o token for um decimal. */
+            // else if (token.tipo == 1004){
+            //     char* hexa = decimalHexadecimal(token.palavra);
+            //     escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
+            //     posicao += 3;
+            // }
 
-            /*  Se o token for um decimal. */
-            else if (token.tipo == 1004){
-                char* hexa = decimalHexadecimal(token.palavra);
-                escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
-                posicao += 3;
-            }
+            // /*  Se o token for um nome. */
+            // else if (token.tipo == 1005){
+            //     if (verificarRotulos == 0)
+            //         escreverMapaDeMemoria("000", mapaDeMemoria, posicao);
+            //     else
+            //         escreverMapaDeMemoria(getEndereco());
+            //     posicao += 3;
+            // }
 
-            /*  Se o token for um nome. */
-            else if (token.tipo == 1005){
-                if (verificarRotulos == 0)
-                    escreverMapaDeMemoria("000", mapaDeMemoria, posicao);
-                else
-                    escreverMapaDeMemoria(getEndereco(token.palavra, mapaDeMemoria, posicao));
-                posicao += 3;
-            }
-
-            if (posicaoPalavra(posicao)){
-                mapaDeMemoria[posicao] = '\n';
-                incrementarHexadecimal(enderecoAtual);
-                if (posicao+1 <= getNumberOfTokens() && (recuperaToken(posicao+1)).tipo != 1001){
-                    escreverMapaDeMemoria(enderecoAtual, mapaDeMemoria, posicao);
-                    escreverMapaDeMemoria(" ", mapaDeMemoria, posicao+3);
-                    posicao += 3;
-                }
-                posicao++;
-            }
-            else{
-                mapaDeMemoria[posicao] = ' ';
-            }
-            posicao++;
+            // if (posicaoPalavra(posicao)){
+            //     mapaDeMemoria[posicao] = '\n';
+            //     incrementarHexadecimal(enderecoAtual);
+            //     if (posicao+1 <= getNumberOfTokens() && (recuperaToken(posicao+1)).tipo != 1001){
+            //         escreverMapaDeMemoria(enderecoAtual, mapaDeMemoria, posicao);
+            //         escreverMapaDeMemoria(" ", mapaDeMemoria, posicao+3);
+            //         posicao += 3;
+            //     }
+            //     posicao++;
+            // }
+            // else{
+            //     mapaDeMemoria[posicao] = ' ';
+            // }
+            // posicao++;
         }
 
         verificarRotulos = 1;
@@ -111,12 +114,20 @@ void escreverMapaDeMemoria (char* substring, char* mapaDeMemoria, int posicao){
  *  da direita e devemos pular uma linha. Se não for, estamos na palavra da esquerda e devemos
  *  adicionar um espaço.
  */
-int posicaoPalavra (int posicao){
-    int i = 1;
-    while (13*i <= posicao){
-        if (13*i == posicao)
-            return 1;
-        i++;
-    }
-    return 1;
-}
+//  int posicaoMultiplaDe (int posicao, int multiplo){
+//      int i = 0;
+//     while (multiplo*i <= posicao){
+//         if (multiplo*i == posicao)
+//             return 1;
+//         i++;
+//     }
+//     return 1;
+// }
+
+
+ char* removerDoisPontos (char* diretiva){
+    char* diretivaReescrita = malloc(strlen(diretiva)*sizeof(char));
+    strcpy(diretivaReescrita, diretiva);
+    diretivaReescrita[strlen(diretiva)-1] = '\0';
+    return diretivaReescrita;
+ }
