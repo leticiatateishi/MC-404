@@ -18,17 +18,17 @@ Rotulo getRotulo(int posicao){
     return rotulos[posicao];
 }
 
-void adicionarRotulo(Rotulo* rotulo){
-    rotulos[tamRotulos] = *rotulo;
+void adicionarRotulo(Rotulo rotulo){
+    rotulos[tamRotulos] = rotulo;
     tamRotulos++;
 }
 
-Rotulo* criarRotulo(char* palavra, char* endereco){
-    Rotulo *novoRotulo = malloc(sizeof(Rotulo));
-    strcpy(novoRotulo->nome, palavra);
-    strcpy(novoRotulo->endereco, endereco);
-    return novoRotulo;
-}
+// Rotulo* criarRotulo(char* palavra, char* endereco){
+//     Rotulo *novoRotulo = malloc(sizeof(Rotulo));
+//     strcpy(novoRotulo->nome, palavra);
+//     strcpy(novoRotulo->endereco, endereco);
+//     return novoRotulo;
+// }
 
 char* getEndereco (char* palavra){
     for (int i = 0; i < getNumberOfRotulos(); i++){
@@ -36,6 +36,11 @@ char* getEndereco (char* palavra){
             return rotulos[i].endereco;
     }
     return NULL;
+}
+
+
+Rotulo recuperaRotulo(int posicao){
+    return rotulos[posicao];
 }
 
 
@@ -47,17 +52,17 @@ tipoNome getNome(int posicao){
     return nomes[posicao];
 }
 
-void adicionarNome(tipoNome* nome){
-    nomes[tamNomes] = *nome;
+void adicionarNome(tipoNome nome){
+    nomes[tamNomes] = nome;
     tamNomes++;
 }
 
-tipoNome* criarNome(char* palavra, char* valor){
-    tipoNome *novoNome = malloc(sizeof(tipoNome));
-    strcpy(novoNome->nome, palavra);
-    strcpy(novoNome->valor, valor);
-    return novoNome;
-}
+// tipoNome* criarNome(char* palavra, char* valor){
+//     tipoNome *novoNome = malloc(sizeof(tipoNome));
+//     strcpy(novoNome->nome, palavra);
+//     strcpy(novoNome->valor, valor);
+//     return novoNome;
+// }
 
 char* getValor (char* nome){
     for (int i = 0; i < getNumberOfNomes(); i++){
@@ -65,4 +70,8 @@ char* getValor (char* nome){
             return nomes[i].valor;
     }
     return NULL;
+}
+
+tipoNome recuperaNome(int posicao){
+    return nomes[posicao];
 }

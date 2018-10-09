@@ -35,10 +35,13 @@ char* reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, i
 
     else if (strcmp(diretiva, ".set") == 0){
         Token segundoArgumento = recuperaToken(*i+2);
+        tipoNome novoNome;
+        strcpy(novoNome.nome, (recuperaToken(*i+1)).palavra);
         if (segundoArgumento.tipo == 1004)
-            adicionarNome(criarNome((recuperaToken(*i+1)).palavra, reescreverDecimal(segundoArgumento.palavra)));
+            strcpy(novoNome.valor, reescreverDecimal(segundoArgumento.palavra));
         else
-            adicionarNome(criarNome((recuperaToken(*i+1)).palavra, segundoArgumento.palavra));
+            strcpy(novoNome.valor, segundoArgumento.palavra);
+        adicionarNome(novoNome);
         *i += 2;
     }
 

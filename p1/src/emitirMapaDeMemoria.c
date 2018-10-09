@@ -50,7 +50,10 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma definição de rótulo. */
             else if (token.tipo == 1002 && (verificarRotulos == 0)){
-                adicionarRotulo(criarRotulo(token.palavra, enderecoAtual));
+                Rotulo novoRotulo;
+                strcpy(novoRotulo.endereco, enderecoAtual);
+                strcpy(novoRotulo.nome, token.palavra);
+                adicionarRotulo(novoRotulo);
             }
 
             // /*  Se o token for um hexadecimal. */
@@ -95,6 +98,9 @@ int emitirMapaDeMemoria()
 
     }
 
+    printf("%s\n", mapaDeMemoria);
+    for (int k = 0; k < getNumberOfTokens(); k++)
+        free((recuperaToken(k)).palavra);
     return 0;
 }
 

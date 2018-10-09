@@ -5,7 +5,7 @@
  */
 int processarEntrada(char*, unsigned tamanho);
 
-Token criarToken(TipoDoToken t, char* p, unsigned l);
+void criarToken(Token novoToken, TipoDoToken t, char p[64], unsigned l);
 
 int verificarPalavra(char* palavra, int numero_linha);
 
