@@ -35,6 +35,7 @@ int emitirMapaDeMemoria()
         int posicao = 0;
         char enderecoAtual[] = "000";
         mapaDeMemoria[0] = '\0';
+        printf("numero de tokens: %d\n", getNumberOfTokens());
 
 
         if (getNumberOfTokens() > 0){
@@ -49,14 +50,13 @@ int emitirMapaDeMemoria()
         for (int i = 0; i < getNumberOfTokens(); i++){
 
             token = recuperaToken(i);
-            if (posicaoMultiplaDe(posicao, 13)){
+            if (pularLinha(posicao)){
                 linhasMapa++;
                 if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))) {
                     strcat(mapaDeMemoria, "\n");
                     incrementarHexadecimal(enderecoAtual);
-                    printf("endereco atual: %s\n",enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);
-                    posicao += 3;
+                    posicao += 4;
                 }
             }
 
@@ -119,32 +119,32 @@ int emitirMapaDeMemoria()
                 }
                 posicao += 3;
             }
+            mapaDeMemoria[posicao] = '\0';
 
-            // if (posicaoPalavra(posicao)){
-            //     mapaDeMemoria[posicao] = '\n';
-            //     incrementarHexadecimal(enderecoAtual);
-            //     if (posicao+1 <= getNumberOfTokens() && (recuperaToken(posicao+1)).tipo != 1001){
-            //         escreverMapaDeMemoria(enderecoAtual, mapaDeMemoria, posicao);
-            //         escreverMapaDeMemoria(" ", mapaDeMemoria, posicao+3);
-            //         posicao += 3;
-            //     }
-            //     posicao++;
-            // }
-            // else{
-            //     mapaDeMemoria[posicao] = ' ';
-            // }
-            // posicao++;
         }
 
         verificarRotulos = 1;
 
     }
 
-    // reescreverMapa();
+    reescreverMapa();
     printf("%s\n", mapaDeMemoria);
     for (int k = 0; k < getNumberOfTokens(); k++)
         free((recuperaToken(k)).palavra);
     return 0;
+}
+
+
+/*  Retorna 1 se não devemos atualizar o endereco ou 0 caso contrário.
+ */
+int atualizarEndereco (char* endereco, int i){
+    while (i < getNumberOfTokens()-1){
+        Token proximo = recuperaToken(i+1);
+        if (proximo.tipo == 1000)
+            return 0;
+        i ++;
+    }
+    return 1;
 }
 
 

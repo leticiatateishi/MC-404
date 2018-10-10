@@ -26,4 +26,6 @@ char* reescreverInstrucao (char* instrucao);
 
 void incrementarHexadecimal (char* hexadecimal);
 
+int pularLinha(int posicao);
+
 #endif

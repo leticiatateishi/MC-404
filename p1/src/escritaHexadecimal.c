@@ -13,6 +13,8 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             mapaDeMemoria[*posicao] = '0';
             *posicao += 1;
         }
+        mapaDeMemoria[*posicao] = '\n';
+        (*posicao)++;
         int numero = (int)strtol(enderecoAtual, NULL, 16);
         while (numero % atoi((recuperaToken(*i+1)).palavra) != 0)
             numero++;
@@ -24,6 +26,8 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             mapaDeMemoria[*posicao] = '0';
             *posicao += 1;
         }
+        mapaDeMemoria[*posicao] = '\n';
+        (*posicao)++;
         Token argumento = recuperaToken(*i+1);
         if (argumento.tipo == 1004)
             sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
@@ -49,7 +53,9 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
     else if (strcmp(diretiva, ".word") == 0){
         char palavraHexa[64];
-        Token argumento = recuperaToken(*i+1);
+        // palavraHexa[0] = '\0';
+        (*i) ++;
+        Token argumento = recuperaToken(*i);
 
         // Hexadecimal
         if (argumento.tipo == 1003){
@@ -80,19 +86,23 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         else{
             // printf(".word seguido de decimal\n");
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
+
         }
             // strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
 
         int j = 0;
         // printf("tamanho: %ld\n", strlen(palavraHexa));
         while (j < 10-strlen(palavraHexa)){
-            strcat(mapaDeMemoria, "0");
+            mapaDeMemoria[(*posicao)] = '0';
+            // printf("%c\n", mapaDeMemoria[*posicao]);
+            // strcat(mapaDeMemoria, "0");
             (*posicao)++;
             j++;
         }
         // printf("palavra que foi escrita: %s\n", palavraHexa);
         strcat(mapaDeMemoria, palavraHexa);
-        *posicao += strlen(palavraHexa);
+        // printf("palavra a ser escrita: %s\n", palavraHexa);
+        (*posicao) += strlen(palavraHexa);
     }
 
     else if (strcmp(diretiva, ".wfill") == 0){
@@ -306,3 +316,14 @@ void incrementarHexadecimal (char* hexadecimal){
  }
 
 // }
+
+
+int pularLinha(int posicao){
+    int i = 0;
+    while(13+14*i <= posicao){
+        if(13+14*i == posicao)
+            return 1;
+        i++;
+    }
+    return 0;
+}
