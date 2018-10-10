@@ -35,7 +35,6 @@ int emitirMapaDeMemoria()
         int posicao = 0;
         char enderecoAtual[] = "000";
         mapaDeMemoria[0] = '\0';
-        printf("numero de tokens: %d\n", getNumberOfTokens());
 
 
         if (getNumberOfTokens() > 0){
@@ -155,9 +154,12 @@ void reescreverMapa(){
     for (int i = 0; i < linhasMapa; i++){
         for (int k = 0; k < 3; k++)
             novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
-        for (int k = 0; k < 5; k++){
+        for (int k = 0; k < 2; k++){
             novoMapa[posNovo++] = ' ';
             for (int j = 0; j < 2; j++)
+                novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
+            novoMapa[posNovo++] = ' ';
+            for (int j = 0; j < 3; j++)
                 novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
         }
         novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];

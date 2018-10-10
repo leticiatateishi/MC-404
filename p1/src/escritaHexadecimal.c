@@ -179,7 +179,7 @@ char* reescreverHexadecimal (char* hexadecimal){
         hexadecimalReescrito[j-i] = '\0';
     }
 
-    printf("Hexadecimal reescrito (sem o 0x): %s\n", hexadecimalReescrito);
+    // printf("Hexadecimal reescrito (sem o 0x): %s\n", hexadecimalReescrito);
     return hexadecimalReescrito;
 
 }

@@ -11,6 +11,8 @@ int verificarPalavra(char* palavra, int numero_linha);
 
 void reescreverPalavra (char* palavra);
 
+void liberarMemoria();
+
 char maiusculaParaMinuscula(char letra);
 
 

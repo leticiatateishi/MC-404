@@ -41,7 +41,10 @@ int processarEntrada(char* entrada, unsigned tamanho){
             if (palavra[0] != '\0'){
                 // palavra[] = '\0';
                 int verificacao = verificarPalavra(palavra, numero_linha);
-                if (verificacao == 1)  return 1;
+                if (verificacao == 1){
+                    liberarMemoria();
+                    return 1;
+                }
                 else
                     posicao++;
                 palavra[0] = '\0';
@@ -68,7 +71,10 @@ int processarEntrada(char* entrada, unsigned tamanho){
             /*  Se houver palavra, verificamos de qual tipo ela é, criamos um novo token e a "zeramos" para podermos
              *  armazenar a próxima palavra */
             int verificacao = verificarPalavra(palavra, numero_linha);
-            if (verificacao == 1)  return 1;
+            if (verificacao == 1){
+                liberarMemoria();
+                return 1;
+            }
             else
                 posicao ++;
             palavra[0] = '\0';
@@ -92,6 +98,12 @@ int processarEntrada(char* entrada, unsigned tamanho){
 
     // return 0;
     return verificarErrosGramaticais();
+}
+
+
+void liberarMemoria(){
+    for (int k = 0; k < getNumberOfTokens(); k++)
+        free((recuperaToken(k)).palavra);
 }
 
 
