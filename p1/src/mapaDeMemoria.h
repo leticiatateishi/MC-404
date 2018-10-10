@@ -4,26 +4,25 @@
 #define MAPADEMEMORIA_H
 
 char mapaDeMemoria[4096];
+
 /*  Funções referentes ao arquivo emitirMapaDeMemoria.c
  */
-void escreverMapaDeMemoria (char* substring, int posicao);
+ void removerDoisPontos (char* rotulo);
 
-// int posicaoPalavra (int posicao);
-
- int posicaoMultiplaDe (int posicao, int multiplo);
-
- char* removerDoisPontos (char* diretiva);
+ void reescreverMapa();
 
 
 /*  Funções referentes ao arquivo escritaHexadecimal.c
  */
-void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos);
+ int posicaoMultiplaDe (int posicao, int multiplo);
+
+int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos);
 
 char* reescreverHexadecimal (char* hexadecimal);
 
 char* reescreverInstrucao (char* instrucao);
 
-char* reescreverDecimal (char* decimal);
+// char* reescreverDecimal (char* decimal);
 
 void incrementarHexadecimal (char* hexadecimal);
 

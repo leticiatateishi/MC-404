@@ -17,7 +17,6 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         while (numero % atoi((recuperaToken(*i+1)).palavra) != 0)
             numero++;
         sprintf(enderecoAtual, "%x", numero);
-        // enderecoAtual = reescreverDecimal(enderecoAtual);
     }
 
     else if (strcmp(diretiva, ".org") == 0){
@@ -54,24 +53,34 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
         // Hexadecimal
         if (argumento.tipo == 1003){
+            // printf(".word seguido de hexadecimal\n");
             strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
             // printf(".word seguido de hexadecimal %s de tamanho %ld\n", palavraHexa, strlen(palavraHexa));
         }
 
-        // Nome
+        // Nome  ou rótulo
         else if (argumento.tipo == 1005){
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
             else{
-                if (getValor(argumento.palavra) == NULL)
+                char nomeDefinido[64];
+                char rotuloDefinido[64];
+                strcpy(nomeDefinido, getValor(argumento.palavra));
+                strcpy(rotuloDefinido, getEndereco(argumento.palavra));
+                if (nomeDefinido == NULL && rotuloDefinido == NULL)
                     return 0;
-                strcpy(palavraHexa, getValor(argumento.palavra));
+                if (nomeDefinido != NULL)
+                    strcpy(palavraHexa, nomeDefinido);
+                else
+                    strcpy(palavraHexa, rotuloDefinido);
             }
         }
 
         // Decimal
-        else
+        else{
+            // printf(".word seguido de decimal\n");
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
+        }
             // strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
 
         int j = 0;
@@ -81,8 +90,8 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             (*posicao)++;
             j++;
         }
+        // printf("palavra que foi escrita: %s\n", palavraHexa);
         strcat(mapaDeMemoria, palavraHexa);
-        // escreverMapaDeMemoria(palavraHexa, *posicao);
         *posicao += strlen(palavraHexa);
     }
 
@@ -99,15 +108,23 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
             else{
-                if (getValor(argumento.palavra) == NULL)
+                char nomeDefinido[64];
+                char rotuloDefinido[64];
+                strcpy(nomeDefinido, getValor(argumento.palavra));
+                strcpy(rotuloDefinido, getEndereco(argumento.palavra));
+                if (nomeDefinido == NULL && rotuloDefinido == NULL)
                     return 0;
-                strcpy(palavraHexa, getValor(argumento.palavra));
+                if (nomeDefinido != NULL)
+                    strcpy(palavraHexa, getValor(argumento.palavra));
+                else
+                    strcpy(palavraHexa, getEndereco(argumento.palavra));
             }
         }
 
         // Decimal
         else
-            strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
+            sprintf(palavraHexa, "%x", atoi(argumento.palavra));
+            // strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
 
         while (!posicaoMultiplaDe(*posicao, 13)){
             mapaDeMemoria[*posicao] = '0';
@@ -117,25 +134,17 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
         for (int k = 0; k < atoi(recuperaToken(*i+1).palavra); k++){
             incrementarHexadecimal(enderecoAtual);
-            escreverMapaDeMemoria(enderecoAtual, *posicao);
+            strcat(mapaDeMemoria, enderecoAtual);
             while (j < 10-strlen(palavraHexa)){
                 mapaDeMemoria[*posicao] = '0';
                 *posicao += 1;
                 j++;
             }
-            escreverMapaDeMemoria(palavraHexa, *posicao);
+            strcat(mapaDeMemoria, palavraHexa);
         }
 
     }
     return 1;
-}
-
-
-void escreverMapaDeMemoria (char* substring, int posicao){
-    // for(int i = 0; i < strlen(substring); i++){
-    //     mapaDeMemoria[posicao+i] = substring[i];
-    // }
-    strcat(mapaDeMemoria, substring);
 }
 
 
@@ -160,7 +169,7 @@ char* reescreverHexadecimal (char* hexadecimal){
         hexadecimalReescrito[j-i] = '\0';
     }
 
-    // printf("Hexadecimal reescrito (sem o 0x): %s\n", hexadecimalReescrito);
+    printf("Hexadecimal reescrito (sem o 0x): %s\n", hexadecimalReescrito);
     return hexadecimalReescrito;
 
 }
@@ -232,26 +241,28 @@ char* reescreverInstrucao (char* instrucao){
 }
 
 
-char* reescreverDecimal (char* decimal){
-    char *numeroHexadecimal = malloc(11*sizeof(char));
-    int valor = atoi(decimal);
-    int quociente;
-    int posicao = 0;
-
-    do{
-        quociente = valor/16;
-        int resto = valor%16;
-        valor = quociente;
-        if (resto >= 10)
-            numeroHexadecimal[posicao] = resto - 10 + 'A';
-        else
-            numeroHexadecimal[posicao] = resto + '0';
-        posicao ++;
-    } while (quociente != 0);
-
-    numeroHexadecimal[posicao] = '\0';
-    return numeroHexadecimal;
-}
+// char* reescreverDecimal (char* decimal){
+//     char hexadecimal[13];
+//     sprintf(hexadecimal, "%x", atoi(decimal));
+//     char *numeroHexadecimal = malloc(11*sizeof(char));
+//     int valor = atoi(decimal);
+//     int quociente;
+//     int posicao = 0;
+//
+//     do{
+//         quociente = valor/16;
+//         int resto = valor%16;
+//         valor = quociente;
+//         if (resto >= 10)
+//             numeroHexadecimal[posicao] = resto - 10 + 'A';
+//         else
+//             numeroHexadecimal[posicao] = resto + '0';
+//         posicao ++;
+//     } while (quociente != 0);
+//
+//     numeroHexadecimal[posicao] = '\0';
+//     return numeroHexadecimal;
+// }
 
 
 void incrementarHexadecimal (char* hexadecimal){
@@ -261,7 +272,6 @@ void incrementarHexadecimal (char* hexadecimal){
     char novoHexa[4];
     sprintf(novoHexa, "%x", numero);
     long tamanho = strlen(novoHexa);
-    // printf("endereco em int: %d e em hexa: %s (%ld)\n", numero, novoHexa, strlen(novoHexa));
     hexadecimal[0] = '\0';
     if(tamanho < 3){
         int i = 0;
@@ -275,31 +285,8 @@ void incrementarHexadecimal (char* hexadecimal){
     else{
         strcpy(hexadecimal, novoHexa);
     }
-    // numeroIncrementado = reescreverDecimal(numeroIncrementado);
-    // return numeroIncrementado;
 }
 
-
-/*  Retorna 1 se a posição atual for o final da palavra da direita, ou 0 se a posição atual
- *  for o final de uma palavra da esquerda.
- *  Para verificar se estamos escrevendo a palavra da esquerda ou da direita:
- *  Verificar se a posicao após a escrita do endereço é múltiplo de 17. Se for, estamos na palavra
- *  da direita e devemos pular uma linha. Se não for, estamos na palavra da esquerda e devemos
- *  adicionar um espaço.
- */
-// int posicaoMultiplaDe (int posicao, int multiplo){
-//     int i = 1;
-//     while (multiplo*i <= posicao){
-//         if (multiplo*i == posicao)
-//             return 1;
-//         i++;
-//     }
-//     return 1;
-// }
-
-//
-// void completarComZero (char* mapaDeMemoria, int posicao, ){
-//
 
 /*  Retorna 1 se a posição atual for o final da palavra da direita, ou 0 se a posição atual
  *  for o final de uma palavra da esquerda.

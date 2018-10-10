@@ -18,12 +18,11 @@
         *  0 caso não haja erro.
  */
 
+int linhasMapa = 0;
+
 
 int emitirMapaDeMemoria()
 {
-
-    // mapaDeMemoria = malloc(4096*sizeof(char));
-    // mapaDeMemoria[0] = '\0';
 
     /*  Flag que determina se é a primeira ou segunda vez que montamos o mapa de memória.
      *  É igual a 0 se for a primeira vez, ou seja, devemos armazenar todos os rótulos na lista
@@ -51,12 +50,12 @@ int emitirMapaDeMemoria()
 
             token = recuperaToken(i);
             if (posicaoMultiplaDe(posicao, 13)){
-                if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))){
+                linhasMapa++;
+                if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))) {
                     strcat(mapaDeMemoria, "\n");
                     incrementarHexadecimal(enderecoAtual);
+                    printf("endereco atual: %s\n",enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);
-                    // printf("Endereco novo: %s\n", enderecoAtual);
-                    // escreverMapaDeMemoria(enderecoAtual, posicao);
                     posicao += 3;
                 }
             }
@@ -64,8 +63,9 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma instrução. */
             if (token.tipo == 1000){
-                char* instrucao = reescreverHexadecimal(token.palavra);
-                escreverMapaDeMemoria(instrucao, posicao);
+                char instrucao[3];
+                strcpy(instrucao, reescreverInstrucao(token.palavra));
+                strcat(mapaDeMemoria, instrucao);
                 posicao += 2;
             }
 
@@ -80,33 +80,45 @@ int emitirMapaDeMemoria()
             /*  Se o token for uma definição de rótulo. */
             else if (token.tipo == 1002 && (verificarRotulos == 0)){
                 Rotulo novoRotulo;
+                removerDoisPontos(token.palavra);
                 strcpy(novoRotulo.endereco, enderecoAtual);
                 strcpy(novoRotulo.nome, token.palavra);
                 printf("Rotulo adicionado: %s - %s\n", novoRotulo.nome, novoRotulo.endereco);
                 adicionarRotulo(novoRotulo);
             }
 
-            // /*  Se o token for um hexadecimal. */
-            // else if (token.tipo == 1003){
-            //     escreverMapaDeMemoria(token.palavra, mapaDeMemoria, posicao);
-            //     posicao += 3;
-            // }
-            //
-            // /*  Se o token for um decimal. */
-            // else if (token.tipo == 1004){
-            //     char* hexa = decimalHexadecimal(token.palavra);
-            //     escreverMapaDeMemoria(instrucao, mapaDeMemoria, posicao);
-            //     posicao += 3;
-            // }
+            /*  Se o token for um hexadecimal. */
+            else if (token.tipo == 1003){
+                strcat(mapaDeMemoria, token.palavra);
+                posicao += 3;
+            }
 
-            // /*  Se o token for um nome. */
-            // else if (token.tipo == 1005){
-            //     if (verificarRotulos == 0)
-            //         escreverMapaDeMemoria("000", mapaDeMemoria, posicao);
-            //     else
-            //         escreverMapaDeMemoria(getEndereco());
-            //     posicao += 3;
-            // }
+            /*  Se o token for um decimal. */
+            else if (token.tipo == 1004){
+                char hexa[13];
+                sprintf(hexa, "%x", atoi(token.palavra));
+                strcat(mapaDeMemoria, hexa);
+                posicao += 3;
+            }
+
+            /*  Se o token for um nome. */
+            else if (token.tipo == 1005){
+                if (verificarRotulos == 0)
+                    strcat(mapaDeMemoria, "000");
+                else{
+                    char nomeDefinido[64];
+                    char rotuloDefinido[64];
+                    strcpy(nomeDefinido, getValor(token.palavra));
+                    strcpy(rotuloDefinido, getEndereco(token.palavra));
+                    if (nomeDefinido == NULL && rotuloDefinido == NULL)
+                        return 0;
+                    if (nomeDefinido != NULL)
+                        strcat(mapaDeMemoria, nomeDefinido);
+                    else
+                        strcat(mapaDeMemoria, rotuloDefinido);
+                }
+                posicao += 3;
+            }
 
             // if (posicaoPalavra(posicao)){
             //     mapaDeMemoria[posicao] = '\n';
@@ -128,37 +140,36 @@ int emitirMapaDeMemoria()
 
     }
 
+    // reescreverMapa();
     printf("%s\n", mapaDeMemoria);
     for (int k = 0; k < getNumberOfTokens(); k++)
         free((recuperaToken(k)).palavra);
-    // free(mapaDeMemoria);
     return 0;
 }
 
 
+void reescreverMapa(){
+    char novoMapa[4096];
+    int posOriginal = 0;
+    int posNovo = 0;
+    for (int i = 0; i < linhasMapa; i++){
+        for (int k = 0; k < 3; k++)
+            novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
+        for (int k = 0; k < 5; k++){
+            novoMapa[posNovo++] = ' ';
+            for (int j = 0; j < 2; j++)
+                novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
+        }
+        novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
+    }
+    // mapaDeMemoria[0] = '\0';
+    strcpy(mapaDeMemoria, novoMapa);
+}
 
 
-/*  Retorna 1 se a posição atual for o final da palavra da direita, ou 0 se a posição atual
- *  for o final de uma palavra da esquerda.
- *  Para verificar se estamos escrevendo a palavra da esquerda ou da direita:
- *  Verificar se a posicao após a escrita do endereço é múltiplo de 13. Se for, estamos na palavra
- *  da direita e devemos pular uma linha. Se não for, estamos na palavra da esquerda e devemos
- *  adicionar um espaço.
- */
-//  int posicaoMultiplaDe (int posicao, int multiplo){
-//      int i = 0;
-//     while (multiplo*i <= posicao){
-//         if (multiplo*i == posicao)
-//             return 1;
-//         i++;
-//     }
-//     return 1;
-// }
-
-
- char* removerDoisPontos (char* diretiva){
-    char* diretivaReescrita = malloc(strlen(diretiva)*sizeof(char));
-    strcpy(diretivaReescrita, diretiva);
-    diretivaReescrita[strlen(diretiva)-1] = '\0';
-    return diretivaReescrita;
+ void removerDoisPontos (char* rotulo){
+    char rotuloReescrito[64];
+    strcpy(rotuloReescrito, rotulo);
+    rotuloReescrito[strlen(rotulo)-1] = '\0';
+    strcpy(rotulo, rotuloReescrito);
  }
