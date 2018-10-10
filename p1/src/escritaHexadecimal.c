@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 
-void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos){
+int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos){
 
     if (strcmp(diretiva, ".align") == 0) {
         while (!posicaoMultiplaDe(*posicao, 13)){
@@ -41,7 +41,6 @@ void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, in
             strcpy(novoNome.nome, (recuperaToken(*i+1)).palavra);
             if (segundoArgumento.tipo == 1004)
                 sprintf(novoNome.valor, "%x", atoi(segundoArgumento.palavra));
-                // strcpy(novoNome.valor, reescreverDecimal(segundoArgumento.palavra));
             else
                 strcpy(novoNome.valor, segundoArgumento.palavra);
             adicionarNome(novoNome);
@@ -56,15 +55,18 @@ void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, in
         // Hexadecimal
         if (argumento.tipo == 1003){
             strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
-            printf(".word seguido de hexadecimal %s de tamanho %ld\n", palavraHexa, strlen(palavraHexa));
+            // printf(".word seguido de hexadecimal %s de tamanho %ld\n", palavraHexa, strlen(palavraHexa));
         }
 
         // Nome
         else if (argumento.tipo == 1005){
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
-            else
+            else{
+                if (getValor(argumento.palavra) == NULL)
+                    return 0;
                 strcpy(palavraHexa, getValor(argumento.palavra));
+            }
         }
 
         // Decimal
@@ -76,9 +78,6 @@ void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, in
         // printf("tamanho: %ld\n", strlen(palavraHexa));
         while (j < 10-strlen(palavraHexa)){
             strcat(mapaDeMemoria, "0");
-            // printf("mapa dentro do loop: %s\n", mapaDeMemoria);
-            // printf("aaaaaaaaaaaa\n");
-            // mapaDeMemoria[*posicao] = '0';
             (*posicao)++;
             j++;
         }
@@ -99,8 +98,11 @@ void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, in
         else if (argumento.tipo == 1005){
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
-            else
+            else{
+                if (getValor(argumento.palavra) == NULL)
+                    return 0;
                 strcpy(palavraHexa, getValor(argumento.palavra));
+            }
         }
 
         // Decimal
@@ -123,17 +125,9 @@ void reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, in
             }
             escreverMapaDeMemoria(palavraHexa, *posicao);
         }
-        // strcat(palavraFinal, enderecoAtual);
-        // strcat(palavraFinal, palavraHexa);
 
-        // for(int k = 1; k < atoi((recuperaToken(*i+1)).palavra); k++){
-        //     enderecoAtual = incrementarHexadecimal(enderecoAtual);
-        //     strcat(palavraFinal, enderecoAtual);
-        //     strcat(palavraFinal, palavraHexa);
-        // }
-        // return palavraFinal;
     }
-    // return NULL;
+    return 1;
 }
 
 
@@ -261,14 +255,26 @@ char* reescreverDecimal (char* decimal){
 
 
 void incrementarHexadecimal (char* hexadecimal){
-    if (hexadecimal[2] != 'c'){
-        int digito =
+
+    int numero = (int)strtol(hexadecimal, NULL, 16);
+    numero++;
+    char novoHexa[4];
+    sprintf(novoHexa, "%x", numero);
+    long tamanho = strlen(novoHexa);
+    // printf("endereco em int: %d e em hexa: %s (%ld)\n", numero, novoHexa, strlen(novoHexa));
+    hexadecimal[0] = '\0';
+    if(tamanho < 3){
+        int i = 0;
+        while(i < 3-tamanho){
+            hexadecimal[i] = '0';
+            i++;
+        }
+        hexadecimal[i] = '\0';
+        strcat(hexadecimal, novoHexa);
     }
-    // char numeroIncrementado[12];
-    // int numero = (int)strtol(hexadecimal, NULL, 16);
-    // printf("endereco atual em int: %d e em hex: %s\n", numero, hexadecimal);
-    // numero++;
-    // sprintf(hexadecimal, "%x", numero);
+    else{
+        strcpy(hexadecimal, novoHexa);
+    }
     // numeroIncrementado = reescreverDecimal(numeroIncrementado);
     // return numeroIncrementado;
 }

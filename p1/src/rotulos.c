@@ -23,13 +23,6 @@ void adicionarRotulo(Rotulo rotulo){
     tamRotulos++;
 }
 
-// Rotulo* criarRotulo(char* palavra, char* endereco){
-//     Rotulo *novoRotulo = malloc(sizeof(Rotulo));
-//     strcpy(novoRotulo->nome, palavra);
-//     strcpy(novoRotulo->endereco, endereco);
-//     return novoRotulo;
-// }
-
 char* getEndereco (char* palavra){
     for (int i = 0; i < getNumberOfRotulos(); i++){
         if (strcmp(palavra, rotulos[i].nome) == 0)
@@ -37,7 +30,6 @@ char* getEndereco (char* palavra){
     }
     return NULL;
 }
-
 
 Rotulo recuperaRotulo(int posicao){
     return rotulos[posicao];

@@ -24,8 +24,7 @@ int emitirMapaDeMemoria()
 
     // mapaDeMemoria = malloc(4096*sizeof(char));
     // mapaDeMemoria[0] = '\0';
-    int posicao = 0;
-    char enderecoAtual[] = "000";
+
     /*  Flag que determina se é a primeira ou segunda vez que montamos o mapa de memória.
      *  É igual a 0 se for a primeira vez, ou seja, devemos armazenar todos os rótulos na lista
      *  que armazena rótulos e suas posições. É igual a 1 se for a segunda vez, ou seja, não
@@ -34,6 +33,10 @@ int emitirMapaDeMemoria()
     Token token;
 
     for (int j = 0; j < 2; j++){
+        int posicao = 0;
+        char enderecoAtual[] = "000";
+        mapaDeMemoria[0] = '\0';
+
 
         if (getNumberOfTokens() > 0){
             token = recuperaToken(0);
@@ -52,7 +55,7 @@ int emitirMapaDeMemoria()
                     strcat(mapaDeMemoria, "\n");
                     incrementarHexadecimal(enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);
-                    printf("Mapa com endereco novo:\n %s\n", mapaDeMemoria);
+                    // printf("Endereco novo: %s\n", enderecoAtual);
                     // escreverMapaDeMemoria(enderecoAtual, posicao);
                     posicao += 3;
                 }
@@ -68,10 +71,10 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma diretiva. */
             else if (token.tipo == 1001){
-                reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos);
-                // if (diretiva != NULL){
-                //     escreverMapaDeMemoria(diretiva, posicao);
-                // }
+                if(reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos) == 0){
+                    fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
+                    return 1;
+                }
             }
 
             /*  Se o token for uma definição de rótulo. */
