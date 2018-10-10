@@ -62,9 +62,8 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma instrução. */
             if (token.tipo == 1000){
-                char instrucao[3];
-                strcpy(instrucao, reescreverInstrucao(token.palavra));
-                strcat(mapaDeMemoria, instrucao);
+                reescreverInstrucao(token.palavra);
+                // strcat(mapaDeMemoria, instrucao);
                 posicao += 2;
             }
 

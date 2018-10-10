@@ -22,7 +22,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
     }
 
     else if (strcmp(diretiva, ".org") == 0){
-        while (!posicaoMultiplaDe(*posicao, 13)){
+        while (!pularLinha(*posicao)){
             mapaDeMemoria[*posicao] = '0';
             *posicao += 1;
         }
@@ -33,12 +33,11 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
             // strcpy(enderecoAtual, reescreverDecimal(argumento.palavra));
         else
-            strcpy(enderecoAtual, argumento.palavra);
+            strcpy(enderecoAtual, reescreverHexadecimal(argumento.palavra));
     }
 
     else if (strcmp(diretiva, ".set") == 0){
         if (verificarRotulos == 0){
-            // printf("Novo nome adicionado: %s\n", );
             Token segundoArgumento = recuperaToken(*i+2);
             tipoNome novoNome;
             strcpy(novoNome.nome, (recuperaToken(*i+1)).palavra);
@@ -47,6 +46,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             else
                 strcpy(novoNome.valor, segundoArgumento.palavra);
             adicionarNome(novoNome);
+            printf("Novo nome adicionado: %s - %s\n", novoNome.nome, novoNome.valor);
         }
         *i += 2;
     }
@@ -59,9 +59,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
         // Hexadecimal
         if (argumento.tipo == 1003){
-            // printf(".word seguido de hexadecimal\n");
             strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
-            // printf(".word seguido de hexadecimal %s de tamanho %ld\n", palavraHexa, strlen(palavraHexa));
         }
 
         // Nome  ou rótulo
@@ -186,68 +184,83 @@ char* reescreverHexadecimal (char* hexadecimal){
 
 
 
-
-char* reescreverInstrucao (char* instrucao){
-    char *hexadecimal = malloc(2*sizeof(char));
+void reescreverInstrucao (char* instrucao){
 
     if (!strcmp(instrucao, "ld"))
-        strcpy(hexadecimal, "01");
+        strcat(mapaDeMemoria, "01");
+        // strcpy(hexadecimal, "01");
 
     else if (!strcmp(instrucao, "ldinv"))
-        strcpy(hexadecimal, "02");
+        strcat(mapaDeMemoria, "02");
+        // strcpy(hexadecimal, "02");
 
     else if (!strcmp(instrucao, "ldabs"))
-        strcpy(hexadecimal, "03");
+        strcat(mapaDeMemoria, "03");
+        // strcpy(hexadecimal, "03");
 
     else if (!strcmp(instrucao, "ldmq"))
-        strcpy(hexadecimal, "0A");
+        strcat(mapaDeMemoria, "0A");
+        // strcpy(hexadecimal, "0A");
 
     else if (!strcmp(instrucao, "ldmqmx"))
-        strcpy(hexadecimal, "09");
+        strcat(mapaDeMemoria, "09");
+        // strcpy(hexadecimal, "09");
 
     else if (!strcmp(instrucao, "store"))
-        strcpy(hexadecimal, "21");
+        strcat(mapaDeMemoria, "21");
+        // strcpy(hexadecimal, "21");
 
     else if (!strcmp(instrucao, "jump"))
-        strcpy(hexadecimal, "0D");
+        strcat(mapaDeMemoria, "0D");
+        // strcpy(hexadecimal, "0D");
 
     else if (!strcmp(instrucao, "jumpl"))
-        strcpy(hexadecimal, "0F");
+        strcat(mapaDeMemoria, "0F");
+        // strcpy(hexadecimal, "0F");
 
     else if (!strcmp(instrucao, "jumpr"))
-        strcpy(hexadecimal, "10");
+        strcat(mapaDeMemoria, "10");
+        // strcpy(hexadecimal, "10");
 
     else if (!strcmp(instrucao, "add"))
-        strcpy(hexadecimal, "05");
+        strcat(mapaDeMemoria, "05");
+        // strcpy(hexadecimal, "05");
 
     else if (!strcmp(instrucao, "addabs"))
-        strcpy(hexadecimal, "07");
+        strcat(mapaDeMemoria, "07");
+        // strcpy(hexadecimal, "07");
 
     else if (!strcmp(instrucao, "sub"))
-        strcpy(hexadecimal, "06");
+        strcat(mapaDeMemoria, "06");
+        // strcpy(hexadecimal, "06");
 
     else if (!strcmp(instrucao, "subabs"))
-        strcpy(hexadecimal, "08");
+        strcat(mapaDeMemoria, "08");
+        // strcpy(hexadecimal, "08");
 
     else if (!strcmp(instrucao, "mult"))
-        strcpy(hexadecimal, "0B");
+        strcat(mapaDeMemoria, "0B");
+        // strcpy(hexadecimal, "0B");
 
     else if (!strcmp(instrucao, "div"))
-        strcpy(hexadecimal, "0C");
+        strcat(mapaDeMemoria, "0C");
+        // strcpy(hexadecimal, "0C");
 
     else if (!strcmp(instrucao, "rsh"))
-        strcpy(hexadecimal, "15");
+        strcat(mapaDeMemoria, "15");
+        // strcpy(hexadecimal, "15");
 
     else if (!strcmp(instrucao, "lsh"))
-        strcpy(hexadecimal, "14");
+        strcat(mapaDeMemoria, "14");
+        // strcpy(hexadecimal, "14");
 
     else if (!strcmp(instrucao, "storal"))
-        strcpy(hexadecimal, "12");
+        strcat(mapaDeMemoria, "12");
+        // strcpy(hexadecimal, "12");
 
     else if (!strcmp(instrucao, "storar"))
-        strcpy(hexadecimal, "13");
-
-    return hexadecimal;
+        strcat(mapaDeMemoria, "13");
+        // strcpy(hexadecimal, "13");
 }
 
 

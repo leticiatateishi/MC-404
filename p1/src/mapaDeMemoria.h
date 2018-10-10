@@ -20,7 +20,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
 char* reescreverHexadecimal (char* hexadecimal);
 
-char* reescreverInstrucao (char* instrucao);
+void reescreverInstrucao (char* instrucao);
 
 // char* reescreverDecimal (char* decimal);
 
