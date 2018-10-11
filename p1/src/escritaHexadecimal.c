@@ -10,20 +10,37 @@
 int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos, int *linhasMapa){
 
     if (strcmp(diretiva, ".align") == 0) {
-        while (!posicaoMultiplaDe(*posicao, 14, 13)){
-            mapaDeMemoria[*posicao] = '0';
-            *posicao += 1;
+        if (!posicaoMultiplaDe(*posicao, 14, 0)){
+            printf("nao deveria entrar aqui\n");
+            while (!posicaoMultiplaDe(*posicao, 14, 13)){
+                mapaDeMemoria[*posicao] = '0';
+                *posicao += 1;
+            }
+            mapaDeMemoria[*posicao] = '\n';
+            (*linhasMapa)++;
+            (*posicao)++;
         }
-        mapaDeMemoria[*posicao] = '\n';
-        (*linhasMapa)++;
-        (*posicao)++;
+        // while (!posicaoMultiplaDe(*posicao, 14, 13)){
+        //     mapaDeMemoria[*posicao] = '0';
+        //     *posicao += 1;
+        // }
+        // mapaDeMemoria[*posicao] = '\n';
+        // (*linhasMapa)++;
+        // (*posicao)++;
         int numero = (int)strtol(enderecoAtual, NULL, 16);
-        while (numero % atoi((recuperaToken(*i+1)).palavra) != 0)
+        printf("endereco atual em int (784): %d e posicao atual (310: %s)\n", numero, enderecoAtual);
+        (*i) ++;
+        //  ///////////////////////////////////////////////////////////////////// TEM QUE VER ISSO AI
+        do{
             numero++;
+        }while (numero % atoi((recuperaToken(*i)).palavra) != 0);
         sprintf(enderecoAtual, "%x", numero);
+        strcat(mapaDeMemoria, enderecoAtual);
+        (*posicao)+=3;
     }
 
     else if (strcmp(diretiva, ".org") == 0){
+        printf("posicao: %d\n", *posicao);
         if (!posicaoMultiplaDe(*posicao, 14, 0)){
             while (!posicaoMultiplaDe(*posicao, 14, 13)){
                 mapaDeMemoria[*posicao] = '0';
@@ -35,16 +52,28 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         }
         (*i)++;
         Token argumento = recuperaToken(*i);
-        printf("argumento do .org: %s\n", argumento.palavra);
+        // char novoEndereco[4];
+        // novoEndereco[0] = '\0';
+        // printf("argumento do .org: %s\n", argumento.palavra);
         if (argumento.tipo == 1004)
             sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
             // strcpy(enderecoAtual, reescreverDecimal(argumento.palavra));
         else{
             strcpy(enderecoAtual, reescreverHexadecimal(argumento.palavra));
-            // printf("endereco atual: %s\n", enderecoAtual);
         }
+        printf("endereco atual: %s\n", enderecoAtual);
+        if (strlen(enderecoAtual) < 3){
+            // printf("novo endereco sera %s(%ld)\n", novoEndereco, strlen(novoEndereco));
+            int i = 0;
+            while (i < 3-strlen(enderecoAtual)){
+                mapaDeMemoria[(*posicao)++] = '0';
+                i++;
+            }
+            mapaDeMemoria[(*posicao)] = '\0';
+        }
+
         strcat(mapaDeMemoria, enderecoAtual);
-        (*posicao) += 3;
+        (*posicao) += strlen(enderecoAtual);
     }
 
     else if (strcmp(diretiva, ".set") == 0){
@@ -169,17 +198,17 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             mapaDeMemoria[*posicao] = '\0';
             strcat(mapaDeMemoria, palavraHexa);
             (*posicao) += strlen(palavraHexa);
+            mapaDeMemoria[*posicao] = '\n';
+            (*posicao)++;
             if (k < atoi(recuperaToken(*i+1).palavra)-1){
-                mapaDeMemoria[*posicao] = '\n';
                 incrementarHexadecimal(enderecoAtual);
                 // mapaDeMemoria[*posicao] = '\0';
                 strcat(mapaDeMemoria, enderecoAtual);
-                (*posicao) += 4;
+                (*posicao) += 3;
             }
-            else{
-                mapaDeMemoria[*posicao] = '\n';
-                (*posicao)++;
-            }
+            // else{
+            //     mapaDeMemoria[*posicao] = '\n';
+            // }
         }
         *linhasMapa += atoi(recuperaToken(*i+1).palavra);
         (*i) += 2;
@@ -346,7 +375,7 @@ int escreverEndereco (int i){
         token = recuperaToken(j);
         if (token.tipo == 1000 || !strcmp(token.palavra, ".word") || !strcmp(token.palavra, ".wfill"))
             return 1;
-        if(strcmp(token.palavra, ".org") == 0)
+        if(strcmp(token.palavra, ".org") == 0 || !strcmp(token.palavra, ".align"))
             return 0;
     }
     return 0;

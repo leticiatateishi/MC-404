@@ -31,10 +31,11 @@ int emitirMapaDeMemoria()
      *  precisamos mais armazenar todos os rótulos. */
     // int verificarRotulos = 0;
     Token token;
+    int posicao = 0;
 
     for (int verificarRotulos = 0; verificarRotulos < 2; verificarRotulos++){
 
-        int posicao = 0;
+        posicao = 0;
         char enderecoAtual[] = "000";
         mapaDeMemoria[0] = '\0';
 
@@ -127,6 +128,16 @@ int emitirMapaDeMemoria()
 
     }
 
+    if (!posicaoMultiplaDe(posicao, 14, 0)){
+        while (!posicaoMultiplaDe(posicao, 14, 13)){
+            mapaDeMemoria[posicao] = '0';
+            posicao += 1;
+        }
+        mapaDeMemoria[posicao] = '\n';
+        mapaDeMemoria[posicao] = '\0';
+        posicao += 1;
+
+    }
     reescreverMapa(linhasMapa);
     printf("%s\n", mapaDeMemoria);
     for (int k = 0; k < getNumberOfTokens(); k++)
