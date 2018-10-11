@@ -53,12 +53,13 @@ int emitirMapaDeMemoria()
             token = recuperaToken(i);
             if (posicaoMultiplaDe(posicao, 14, 13)){
                 linhasMapa++;
+                strcat(mapaDeMemoria, "\n");
                 if (escreverEndereco(i)) {
-                    strcat(mapaDeMemoria, "\n");
                     incrementarHexadecimal(enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);
-                    posicao += 4;
+                    posicao += 3;
                 }
+                posicao++;
             }
 
 

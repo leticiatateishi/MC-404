@@ -35,6 +35,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         }
         (*i)++;
         Token argumento = recuperaToken(*i);
+        printf("argumento do .org: %s\n", argumento.palavra);
         if (argumento.tipo == 1004)
             sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
             // strcpy(enderecoAtual, reescreverDecimal(argumento.palavra));
@@ -175,9 +176,13 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
                 strcat(mapaDeMemoria, enderecoAtual);
                 (*posicao) += 4;
             }
+            else{
+                mapaDeMemoria[*posicao] = '\n';
+                (*posicao)++;
+            }
         }
         *linhasMapa += atoi(recuperaToken(*i+1).palavra);
-        (*i) += 3;
+        (*i) += 2;
     }
     return 0;
 }
@@ -188,8 +193,10 @@ char* reescreverHexadecimal (char* hexadecimal){
     static char hexadecimalReescrito[64];
 
     if (strlen(hexadecimal) == 5){
-        for (int i = 0; i < 3; i++)
+        int i;
+        for (i = 0; i < 3; i++)
             hexadecimalReescrito[i] = hexadecimal[i+2];
+        hexadecimalReescrito[i] = '\0';
     }
 
     else{
@@ -204,6 +211,7 @@ char* reescreverHexadecimal (char* hexadecimal){
         hexadecimalReescrito[j-i] = '\0';
     }
 
+    printf("%s reescrito é %s\n", hexadecimal, hexadecimalReescrito);
     return hexadecimalReescrito;
 
 }
