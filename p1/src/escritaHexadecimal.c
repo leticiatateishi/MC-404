@@ -1,6 +1,7 @@
 #include "montador.h"
 #include "rotulos.h"
 #include "mapaDeMemoria.h"
+#include "processamento.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -61,6 +62,10 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
     }
 
     else if (strcmp(diretiva, ".word") == 0){
+        if (posicaoMultiplaDe(*posicao, 14, 8)){
+            fprintf(stderr, "IMPOSSIVEL MONTAR CODIGO!\n");
+            return 1;
+        }
         char palavraHexa[64];
         palavraHexa[0] = '\0';
         (*i) ++;
@@ -76,8 +81,10 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
             else{
-                if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL)
-                    return 0;
+                if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL){
+                    fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", argumento.palavra);
+                    return 1;
+                }
                 if (getValor(argumento.palavra) != NULL){
                     strcpy(palavraHexa,  getValor(argumento.palavra));
                 }
@@ -120,8 +127,10 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
             else {
-                if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL)
-                    return 0;
+                if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL){
+                    fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", argumento.palavra);
+                    return 1;
+                }
                 if (getValor(argumento.palavra) != NULL){
                     strcpy(palavraHexa,  getValor(argumento.palavra));
                 }
@@ -170,7 +179,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         *linhasMapa += atoi(recuperaToken(*i+1).palavra);
         (*i) += 3;
     }
-    return 1;
+    return 0;
 }
 
 
@@ -333,9 +342,4 @@ int escreverEndereco (int i){
             return 0;
     }
     return 0;
-}
-
-
-void completarComZeros (int* posicao){
-
 }

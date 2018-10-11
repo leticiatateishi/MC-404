@@ -1,6 +1,7 @@
 #include "montador.h"
 #include "mapaDeMemoria.h"
 #include "rotulos.h"
+#include "processamento.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -70,8 +71,9 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma diretiva. */
             else if (token.tipo == 1001){
-                if(reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos, &linhasMapa) == 0){
-                    fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
+                if(reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos, &linhasMapa)){
+                    // fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
+                    liberarMemoria();
                     return 1;
                 }
             }
@@ -105,8 +107,11 @@ int emitirMapaDeMemoria()
                 if (verificarRotulos == 0)
                     strcat(mapaDeMemoria, "000");
                 else{
-                    if (getValor(token.palavra) == NULL && getEndereco(token.palavra) == NULL)
-                        return 0;
+                    if (getValor(token.palavra) == NULL && getEndereco(token.palavra) == NULL){
+                        fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
+                        liberarMemoria();
+                        return 1;
+                    }
                     if (getValor(token.palavra) != NULL)
                         strcat(mapaDeMemoria,  getValor(token.palavra));
                     else
