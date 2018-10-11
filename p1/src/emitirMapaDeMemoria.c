@@ -18,8 +18,8 @@
         *  0 caso não haja erro.
  */
 
-int linhasMapa = 0;
 
+int linhasMapa = 0;
 
 int emitirMapaDeMemoria()
 {
@@ -33,7 +33,6 @@ int emitirMapaDeMemoria()
 
     for (int verificarRotulos = 0; verificarRotulos < 2; verificarRotulos++){
 
-        // printf("--------------------- verificarRotulos = %d------------------\n", verificarRotulos);
         int posicao = 0;
         char enderecoAtual[] = "000";
         mapaDeMemoria[0] = '\0';
@@ -41,7 +40,7 @@ int emitirMapaDeMemoria()
 
         if (getNumberOfTokens() > 0){
             token = recuperaToken(0);
-            if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))){
+            if (escreverEndereco(0)){
                 strcat(mapaDeMemoria, enderecoAtual);
                 posicao += 3;
             }
@@ -51,9 +50,9 @@ int emitirMapaDeMemoria()
         for (int i = 0; i < getNumberOfTokens(); i++){
 
             token = recuperaToken(i);
-            if (pularLinha(posicao)){
+            if (posicaoMultiplaDe(posicao, 14, 13)){
                 linhasMapa++;
-                if (token.tipo != 1001 || (token.tipo == 1001 && (strcmp(token.palavra, ".org") != 0))) {
+                if (escreverEndereco(i)) {
                     strcat(mapaDeMemoria, "\n");
                     incrementarHexadecimal(enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);
@@ -71,7 +70,7 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma diretiva. */
             else if (token.tipo == 1001){
-                if(reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos) == 0){
+                if(reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos, &linhasMapa) == 0){
                     fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
                     return 1;
                 }
@@ -112,16 +111,6 @@ int emitirMapaDeMemoria()
                         strcat(mapaDeMemoria,  getValor(token.palavra));
                     else
                         strcat(mapaDeMemoria, getEndereco(token.palavra));
-                    // char nomeDefinido[64];
-                    // char rotuloDefinido[64];
-                    // strcpy(nomeDefinido, getValor(token.palavra));
-                    // strcpy(rotuloDefinido, getEndereco(token.palavra));
-                    // if (nomeDefinido == NULL && rotuloDefinido == NULL)
-                    //     return 0;
-                    // if (nomeDefinido != NULL)
-                    //     strcat(mapaDeMemoria, nomeDefinido);
-                    // else
-                    //     strcat(mapaDeMemoria, rotuloDefinido);
                 }
                 posicao += 3;
             }
@@ -129,11 +118,10 @@ int emitirMapaDeMemoria()
             // printf("mapa apos ler o token %d:\n%s\n\n", i, mapaDeMemoria);
 
         }
-        // verificarRotulos = 1;
 
     }
 
-    reescreverMapa();
+    reescreverMapa(linhasMapa);
     printf("%s\n", mapaDeMemoria);
     for (int k = 0; k < getNumberOfTokens(); k++)
         free((recuperaToken(k)).palavra);
@@ -154,11 +142,11 @@ int atualizarEndereco (char* endereco, int i){
 }
 
 
-void reescreverMapa(){
+void reescreverMapa(int linhasMapa){
     char novoMapa[4096];
     int posOriginal = 0;
     int posNovo = 0;
-    for (int i = 0; i < linhasMapa; i++){
+    for (int i = 0; i <= linhasMapa; i++){
         for (int k = 0; k < 3; k++)
             novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
         for (int k = 0; k < 2; k++){
@@ -171,6 +159,7 @@ void reescreverMapa(){
         }
         novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
     }
+    novoMapa[posNovo] = '\0';
     // mapaDeMemoria[0] = '\0';
     strcpy(mapaDeMemoria, novoMapa);
 }

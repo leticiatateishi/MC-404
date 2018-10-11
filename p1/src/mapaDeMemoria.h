@@ -14,9 +14,9 @@ char mapaDeMemoria[4096];
 
 /*  Funções referentes ao arquivo escritaHexadecimal.c
  */
- int posicaoMultiplaDe (int posicao, int multiplo);
+int posicaoMultiplaDe (int posicao, int multiplo, int posicaoBase);
 
-int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos);
+int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos, int* linhasMapa);
 
 char* reescreverHexadecimal (char* hexadecimal);
 
@@ -26,6 +26,8 @@ void reescreverInstrucao (char* instrucao);
 
 void incrementarHexadecimal (char* hexadecimal);
 
-int pularLinha(int posicao);
+// int pularLinha(int posicao);
+
+int escreverEndereco (int i);
 
 #endif
