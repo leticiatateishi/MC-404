@@ -28,10 +28,12 @@ int emitirMapaDeMemoria()
      *  É igual a 0 se for a primeira vez, ou seja, devemos armazenar todos os rótulos na lista
      *  que armazena rótulos e suas posições. É igual a 1 se for a segunda vez, ou seja, não
      *  precisamos mais armazenar todos os rótulos. */
-    int verificarRotulos = 0;
+    // int verificarRotulos = 0;
     Token token;
 
-    for (int j = 0; j < 2; j++){
+    for (int verificarRotulos = 0; verificarRotulos < 2; verificarRotulos++){
+
+        // printf("--------------------- verificarRotulos = %d------------------\n", verificarRotulos);
         int posicao = 0;
         char enderecoAtual[] = "000";
         mapaDeMemoria[0] = '\0';
@@ -124,9 +126,10 @@ int emitirMapaDeMemoria()
                 posicao += 3;
             }
             mapaDeMemoria[posicao] = '\0';
+            // printf("mapa apos ler o token %d:\n%s\n\n", i, mapaDeMemoria);
 
         }
-        verificarRotulos = 1;
+        // verificarRotulos = 1;
 
     }
 

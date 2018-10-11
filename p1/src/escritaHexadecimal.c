@@ -22,12 +22,14 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
     }
 
     else if (strcmp(diretiva, ".org") == 0){
-        while (!pularLinha(*posicao)){
-            mapaDeMemoria[*posicao] = '0';
-            *posicao += 1;
+        if (!posicaoMultiplaDe(*posicao, 14)){
+            while (!pularLinha(*posicao)){
+                mapaDeMemoria[*posicao] = '0';
+                *posicao += 1;
+            }
+            mapaDeMemoria[*posicao] = '\n';
+            (*posicao)++;
         }
-        mapaDeMemoria[*posicao] = '\n';
-        (*posicao)++;
         (*i)++;
         Token argumento = recuperaToken(*i);
         if (argumento.tipo == 1004)
@@ -38,6 +40,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             // printf("endereco atual: %s\n", enderecoAtual);
         }
         strcat(mapaDeMemoria, enderecoAtual);
+        (*posicao) += 3;
     }
 
     else if (strcmp(diretiva, ".set") == 0){
@@ -57,7 +60,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
     else if (strcmp(diretiva, ".word") == 0){
         char palavraHexa[64];
-        // palavraHexa[0] = '\0';
+        palavraHexa[0] = '\0';
         (*i) ++;
         Token argumento = recuperaToken(*i);
 
@@ -71,18 +74,15 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
             else{
-                // char nomeDefinido[64];
-                // char rotuloDefinido[64];
-                // strcpy(nomeDefinido, getValor(argumento.palavra));
-                // strcpy(rotuloDefinido, getEndereco(argumento.palavra));
                 if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL)
                     return 0;
                 if (getValor(argumento.palavra) != NULL){
                     strcpy(palavraHexa,  getValor(argumento.palavra));
-                    printf("nome %s com valor %s encontrado\n", argumento.palavra, palavraHexa);
+                    // printf("nome %s com valor %s encontrado\n", argumento.palavra, palavraHexa);
                 }
-                else
+                else{
                     strcpy(palavraHexa, getEndereco(argumento.palavra));
+                }
             }
         }
 
@@ -95,18 +95,20 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             // strcpy(palavraHexa, reescreverDecimal(argumento.palavra));
 
         int j = 0;
-        // printf("tamanho: %ld\n", strlen(palavraHexa));
+        // printf("tamanho de %s: %ld\n",palavraHexa, strlen(palavraHexa));
         while (j < 10-strlen(palavraHexa)){
             mapaDeMemoria[(*posicao)] = '0';
-            // printf("%c\n", mapaDeMemoria[*posicao]);
+            // printf("posicao: %d\n", *posicao);
             // strcat(mapaDeMemoria, "0");
             (*posicao)++;
             j++;
         }
-        // printf("palavra que foi escrita: %s\n", palavraHexa);
+        mapaDeMemoria[(*posicao)] = '\0';
         strcat(mapaDeMemoria, palavraHexa);
+        // printf("mapa apos escrever uma palavra nova:\n%s\n\n",mapaDeMemoria);
         // printf("palavra a ser escrita: %s\n", palavraHexa);
         (*posicao) += strlen(palavraHexa);
+        // printf("mapa apos escrever a palavra %s:\n%s\n\n", palavraHexa, mapaDeMemoria);
     }
 
     else if (strcmp(diretiva, ".wfill") == 0){
@@ -121,7 +123,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         else if (argumento.tipo == 1005){
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
-            else{
+            else if (verificarRotulos == 1){
                 char nomeDefinido[64];
                 char rotuloDefinido[64];
                 strcpy(nomeDefinido, getValor(argumento.palavra));
@@ -154,6 +156,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
                 *posicao += 1;
                 j++;
             }
+
             strcat(mapaDeMemoria, palavraHexa);
         }
 
