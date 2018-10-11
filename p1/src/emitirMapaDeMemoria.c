@@ -104,23 +104,28 @@ int emitirMapaDeMemoria()
                 if (verificarRotulos == 0)
                     strcat(mapaDeMemoria, "000");
                 else{
-                    char nomeDefinido[64];
-                    char rotuloDefinido[64];
-                    strcpy(nomeDefinido, getValor(token.palavra));
-                    strcpy(rotuloDefinido, getEndereco(token.palavra));
-                    if (nomeDefinido == NULL && rotuloDefinido == NULL)
+                    if (getValor(token.palavra) == NULL && getEndereco(token.palavra) == NULL)
                         return 0;
-                    if (nomeDefinido != NULL)
-                        strcat(mapaDeMemoria, nomeDefinido);
+                    if (getValor(token.palavra) != NULL)
+                        strcat(mapaDeMemoria,  getValor(token.palavra));
                     else
-                        strcat(mapaDeMemoria, rotuloDefinido);
+                        strcat(mapaDeMemoria, getEndereco(token.palavra));
+                    // char nomeDefinido[64];
+                    // char rotuloDefinido[64];
+                    // strcpy(nomeDefinido, getValor(token.palavra));
+                    // strcpy(rotuloDefinido, getEndereco(token.palavra));
+                    // if (nomeDefinido == NULL && rotuloDefinido == NULL)
+                    //     return 0;
+                    // if (nomeDefinido != NULL)
+                    //     strcat(mapaDeMemoria, nomeDefinido);
+                    // else
+                    //     strcat(mapaDeMemoria, rotuloDefinido);
                 }
                 posicao += 3;
             }
             mapaDeMemoria[posicao] = '\0';
 
         }
-
         verificarRotulos = 1;
 
     }

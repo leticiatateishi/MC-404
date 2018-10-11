@@ -28,12 +28,16 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         }
         mapaDeMemoria[*posicao] = '\n';
         (*posicao)++;
-        Token argumento = recuperaToken(*i+1);
+        (*i)++;
+        Token argumento = recuperaToken(*i);
         if (argumento.tipo == 1004)
             sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
             // strcpy(enderecoAtual, reescreverDecimal(argumento.palavra));
-        else
+        else{
             strcpy(enderecoAtual, reescreverHexadecimal(argumento.palavra));
+            // printf("endereco atual: %s\n", enderecoAtual);
+        }
+        strcat(mapaDeMemoria, enderecoAtual);
     }
 
     else if (strcmp(diretiva, ".set") == 0){
@@ -67,16 +71,18 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
             else{
-                char nomeDefinido[64];
-                char rotuloDefinido[64];
-                strcpy(nomeDefinido, getValor(argumento.palavra));
-                strcpy(rotuloDefinido, getEndereco(argumento.palavra));
-                if (nomeDefinido == NULL && rotuloDefinido == NULL)
+                // char nomeDefinido[64];
+                // char rotuloDefinido[64];
+                // strcpy(nomeDefinido, getValor(argumento.palavra));
+                // strcpy(rotuloDefinido, getEndereco(argumento.palavra));
+                if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL)
                     return 0;
-                if (nomeDefinido != NULL)
-                    strcpy(palavraHexa, nomeDefinido);
+                if (getValor(argumento.palavra) != NULL){
+                    strcpy(palavraHexa,  getValor(argumento.palavra));
+                    printf("nome %s com valor %s encontrado\n", argumento.palavra, palavraHexa);
+                }
                 else
-                    strcpy(palavraHexa, rotuloDefinido);
+                    strcpy(palavraHexa, getEndereco(argumento.palavra));
             }
         }
 
