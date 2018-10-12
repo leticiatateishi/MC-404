@@ -22,11 +22,7 @@ char* reescreverHexadecimal (char* hexadecimal);
 
 void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa);
 
-// char* reescreverDecimal (char* decimal);
-
 void incrementarHexadecimal (char* hexadecimal);
-
-// int pularLinha(int posicao);
 
 int escreverEndereco (int i);
 

@@ -48,16 +48,12 @@ int emitirMapaDeMemoria()
             }
         }
 
-        //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
         for (int i = 0; i < getNumberOfTokens(); i++){
 
-            // printf("posicao para o token %d: %d\n", i, posicao);
             token = recuperaToken(i);
             if (posicaoMultiplaDe(posicao, 14, 13)){
-                // printf("nova linha com tokenAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA %s\n", token.palavra);
                 linhasMapa++;
                 strcat(mapaDeMemoria, "\n");
-                // printf("endereco atual: %s\n", enderecoAtual);
                 if (escreverEndereco(i)) {
                     incrementarHexadecimal(enderecoAtual);
                     minusculaParaMaiuscular(enderecoAtual);
@@ -71,14 +67,12 @@ int emitirMapaDeMemoria()
             /*  Se o token for uma instrução. */
             if (token.tipo == 1000){
                 reescreverInstrucao(token.palavra, enderecoAtual, &posicao, &linhasMapa);
-                // strcat(mapaDeMemoria, instrucao);
                 posicao += 2;
             }
 
             /*  Se o token for uma diretiva. */
             else if (token.tipo == 1001){
                 if(reescreverDiretiva(token.palavra, enderecoAtual, &posicao, &i, verificarRotulos, &linhasMapa)){
-                    // fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
                     liberarMemoria();
                     return 1;
                 }
@@ -90,7 +84,6 @@ int emitirMapaDeMemoria()
                 removerDoisPontos(token.palavra);
                 strcpy(novoRotulo.endereco, enderecoAtual);
                 strcpy(novoRotulo.nome, token.palavra);
-                // printf("Rotulo adicionado: %s - %s\n", novoRotulo.nome, novoRotulo.endereco);
                 adicionarRotulo(novoRotulo);
             }
 
@@ -153,7 +146,6 @@ int emitirMapaDeMemoria()
                 posicao += 3;
             }
             mapaDeMemoria[posicao] = '\0';
-            // printf("mapa apos ler o token %d:\n%s\n\n", i, mapaDeMemoria);
 
         }
 
@@ -209,7 +201,6 @@ void reescreverMapa(int linhasMapa){
         novoMapa[posNovo++] = mapaDeMemoria[posOriginal++];
     }
     novoMapa[posNovo] = '\0';
-    // mapaDeMemoria[0] = '\0';
     strcpy(mapaDeMemoria, novoMapa);
 }
 
