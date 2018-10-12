@@ -51,10 +51,13 @@ int emitirMapaDeMemoria()
         //  ESCREVER O ENDEREÇO ATUAL SÓ SE TIVER CERTEZA QUE NÃO HÁ UMA DIRETIVA
         for (int i = 0; i < getNumberOfTokens(); i++){
 
+            // printf("posicao para o token %d: %d\n", i, posicao);
             token = recuperaToken(i);
             if (posicaoMultiplaDe(posicao, 14, 13)){
+                // printf("nova linha com tokenAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA %s\n", token.palavra);
                 linhasMapa++;
                 strcat(mapaDeMemoria, "\n");
+                // printf("endereco atual: %s\n", enderecoAtual);
                 if (escreverEndereco(i)) {
                     incrementarHexadecimal(enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);

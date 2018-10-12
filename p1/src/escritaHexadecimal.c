@@ -11,7 +11,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
     if (strcmp(diretiva, ".align") == 0) {
         if (!posicaoMultiplaDe(*posicao, 14, 0)){
-            printf("nao deveria entrar aqui\n");
+            // printf("NAO DEVERIA ENTRAR AQUI\n");
             while (!posicaoMultiplaDe(*posicao, 14, 13)){
                 mapaDeMemoria[*posicao] = '0';
                 *posicao += 1;
@@ -28,28 +28,36 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         // (*linhasMapa)++;
         // (*posicao)++;
         int numero = (int)strtol(enderecoAtual, NULL, 16);
-        printf("endereco atual em int (784): %d e posicao atual (310: %s)\n", numero, enderecoAtual);
+        // printf("endereco atual em int (784): %d e posicao atual (310: %s)\n", numero, enderecoAtual);
         (*i) ++;
         //  ///////////////////////////////////////////////////////////////////// TEM QUE VER ISSO AI
         do{
             numero++;
         }while (numero % atoi((recuperaToken(*i)).palavra) != 0);
         sprintf(enderecoAtual, "%x", numero);
+        if (strlen(enderecoAtual)<3){
+            int i = 0;
+            while (i < 3-strlen(enderecoAtual)){
+                mapaDeMemoria[(*posicao)++] = '0';
+                i++;
+            }
+            mapaDeMemoria[(*posicao)] = '\0';
+        }
         strcat(mapaDeMemoria, enderecoAtual);
         (*posicao)+=3;
     }
 
     else if (strcmp(diretiva, ".org") == 0){
         printf("posicao: %d\n", *posicao);
-        if (!posicaoMultiplaDe(*posicao, 14, 0)){
-            while (!posicaoMultiplaDe(*posicao, 14, 13)){
-                mapaDeMemoria[*posicao] = '0';
-                *posicao += 1;
-            }
-            mapaDeMemoria[*posicao] = '\n';
-            (*linhasMapa)++;
-            (*posicao)++;
-        }
+        // if (!posicaoMultiplaDe(*posicao, 14, 0)){
+        //     while (!posicaoMultiplaDe(*posicao, 14, 13)){
+        //         mapaDeMemoria[*posicao] = '0';
+        //         *posicao += 1;
+        //     }
+        //     mapaDeMemoria[*posicao] = '\n';
+        //     (*linhasMapa)++;
+        //     (*posicao)++;
+        // }
         (*i)++;
         Token argumento = recuperaToken(*i);
         // char novoEndereco[4];
@@ -84,7 +92,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             if (segundoArgumento.tipo == 1004)
                 sprintf(novoNome.valor, "%x", atoi(segundoArgumento.palavra));
             else
-                strcpy(novoNome.valor, segundoArgumento.palavra);
+                strcpy(novoNome.valor, reescreverHexadecimal(segundoArgumento.palavra));
             adicionarNome(novoNome);
             printf("Novo nome adicionado: %s - %s\n", novoNome.nome, novoNome.valor);
         }
@@ -198,9 +206,9 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             mapaDeMemoria[*posicao] = '\0';
             strcat(mapaDeMemoria, palavraHexa);
             (*posicao) += strlen(palavraHexa);
-            mapaDeMemoria[*posicao] = '\n';
-            (*posicao)++;
             if (k < atoi(recuperaToken(*i+1).palavra)-1){
+                mapaDeMemoria[*posicao] = '\n';
+                (*posicao)++;
                 incrementarHexadecimal(enderecoAtual);
                 // mapaDeMemoria[*posicao] = '\0';
                 strcat(mapaDeMemoria, enderecoAtual);
