@@ -7,25 +7,40 @@
 #include <stdlib.h>
 
 
-int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos, int *linhasMapa){
+int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int *i, int verificarRotulos,
+int *linhasMapa){
 
+    /*  A diretiva .align possui apenas um argumento, um inteiro que indica que o proximo endereco
+     *  deve ser um multiplo deste inteiro. */
     if (strcmp(diretiva, ".align") == 0) {
+
+        /*  Como ha apenas um argumento, incrementamos i de um. */
+        (*i) ++;
+
+        /*  Se a posicao atual nao for multipla de 14 (isto é, nao é a primeira posicao da linha) */
         if (!posicaoMultiplaDe(*posicao, 14, 0)){
-            // printf("NAO DEVERIA ENTRAR AQUI\n");
-            while (!posicaoMultiplaDe(*posicao, 14, 13)){
-                mapaDeMemoria[*posicao] = '0';
-                *posicao += 1;
-            }
+
+            /*  Completamos a linha com zero, se necessario */
+            while (!posicaoMultiplaDe(*posicao, 14, 13))
+                mapaDeMemoria[(*posicao)++] = '0';
+
+            /*  Incrementamos uma linha mas nao escrevemos o novo endereco. */
             mapaDeMemoria[*posicao] = '\n';
             (*linhasMapa)++;
             (*posicao)++;
         }
+
+        /*  Reescrevemos o endereco em inteiro para facilitar as contas e o incrementamos ate
+         *  que ele seja um multiplo da palavra do token seguinte */
         int numero = (int)strtol(enderecoAtual, NULL, 16);
-        (*i) ++;
         do{
             numero++;
         }while (numero % atoi((recuperaToken(*i)).palavra) != 0);
+
+        /*  Copiamos o novo endereco para enderecoAtual, completamos com zeros caso necessario
+         *  e escrevemos o novo endereco no mapa de memoria. */
         sprintf(enderecoAtual, "%x", numero);
+        minusculaParaMaiuscular(enderecoAtual);
         if (strlen(enderecoAtual)<3){
             int i = 0;
             while (i < 3-strlen(enderecoAtual)){
@@ -38,14 +53,26 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         (*posicao)+=strlen(enderecoAtual);
     }
 
+
+    /*  A diretiva .org possui apenas um argumento, que indica o endereco para o qual devemos
+     *  pular, que pode estar em hexadecimal ou em decimal */
     else if (strcmp(diretiva, ".org") == 0){
+
         (*i)++;
         Token argumento = recuperaToken(*i);
-        if (argumento.tipo == 1004)
+
+        /*  Se o argumento for um decimal, o reescrevemos em hexadecimal. */
+        if (argumento.tipo == 1004){
             sprintf(enderecoAtual, "%x", atoi(argumento.palavra));
-        else{
-            strcpy(enderecoAtual, reescreverHexadecimal(argumento.palavra));
+            minusculaParaMaiuscular(enderecoAtual);
         }
+
+        /*  Se o argumento for um hexadecimal, o reescrevemos para retirar o '0x'. */
+        else
+            strcpy(enderecoAtual, reescreverHexadecimal(argumento.palavra));
+
+        /*  Se o tamanho do endereco atual for menor do que tres, devemos adicionar zeros
+         *  a esquerda ate que o tamanho seja tres. */
         if (strlen(enderecoAtual) < 3){
             int i = 0;
             while (i < 3-strlen(enderecoAtual)){
@@ -55,81 +82,113 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             mapaDeMemoria[(*posicao)] = '\0';
         }
 
+        /*  Escrevemos o endereco novo no mapa de memoria. */
         strcat(mapaDeMemoria, enderecoAtual);
         (*posicao) += strlen(enderecoAtual);
     }
 
+
+    /*  A diretiva .set possui dois argumentos. O primeiro argumento é um nome e o segundo argumento
+     *  é um valor, que pode ser um decimal ou um hexadecimal.*/
     else if (strcmp(diretiva, ".set") == 0){
+
+        /*  Se for a primeira iteracao, armazenamos o novo nome. Caso contrario, ignoramos. */
         if (verificarRotulos == 0){
             Token segundoArgumento = recuperaToken(*i+2);
+
+            /*  Criamos um novo nome, sendo o nome o primeiro argumento de .set e o valor o segundo
+             *  argumento de .set*/
             tipoNome novoNome;
             strcpy(novoNome.nome, (recuperaToken(*i+1)).palavra);
-            if (segundoArgumento.tipo == 1004)
+            /*  Se for um decimal, basta converter para hexadecimal */
+            if (segundoArgumento.tipo == 1004){
                 sprintf(novoNome.valor, "%x", atoi(segundoArgumento.palavra));
+                minusculaParaMaiuscular(novoNome.valor);
+            }
+            /*  Se for hexadecimal, basta remover o '0x' */
             else
                 strcpy(novoNome.valor, reescreverHexadecimal(segundoArgumento.palavra));
             adicionarNome(novoNome);
-            // printf("Novo nome adicionado: %s - %s\n", novoNome.nome, novoNome.valor);
         }
+
+        /*  Incrementamos i de 2 pois esta diretiva possui dois argumentos que ja foram analisados */
         *i += 2;
     }
 
+
+    /*  A diretiva .word possui apenas um argumento, que indica a palavra que sera escrita, podendo
+     *  ser um decimal, um hexadecimal ou um nome */
     else if (strcmp(diretiva, ".word") == 0){
+
+        /*  Caso a palavra esteja desalinhada, ou seja, a posicao atual esteja no meio da linha */
         if (posicaoMultiplaDe(*posicao, 14, 8)){
             fprintf(stderr, "IMPOSSIVEL MONTAR CODIGO!\n");
             return 1;
         }
+
         char palavraHexa[64];
         palavraHexa[0] = '\0';
         (*i) ++;
         Token argumento = recuperaToken(*i);
 
-        // Hexadecimal
+        /*  Se for um hexadecimal, removemos o '0x' */
         if (argumento.tipo == 1003){
             strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
         }
 
-        // Nome  ou rótulo
+        /*  Se for um nome */
         else if (argumento.tipo == 1005){
+
+            /*  Ignoramos se for a primeira iteracao */
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
+
+            /*  Se for a segunda iteracao, tentamos recuperar o endereco do rotulo ou o valor do nome */
             else{
+
+                /*  Se nao encontrarmos um nome ou um rotulo compativel */
                 if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL){
                     fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", argumento.palavra);
                     return 1;
                 }
-                if (getValor(argumento.palavra) != NULL){
+                /*  Se encontrarmos um nome compativel, armazenamos seu valor */
+                if (getValor(argumento.palavra) != NULL)
                     strcpy(palavraHexa,  getValor(argumento.palavra));
-                }
-                else{
+                /*  Se encontrarmos um rotulo compativel, pegamos o seu endereco*/
+                else
                     strcpy(palavraHexa, getEndereco(argumento.palavra));
-                }
             }
         }
 
-        // Decimal
+        /*  Se for um decimal, apenas o reescrevemos como hexadecimal */
         else{
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
             minusculaParaMaiuscular(palavraHexa);
         }
 
+        /*  Completamos a palavra com zeros caso necessario */
         int j = 0;
         while (j < 10-strlen(palavraHexa)){
             mapaDeMemoria[(*posicao)] = '0';
             (*posicao)++;
             j++;
         }
+
+        /*  Escrevemos a palavra no mapa de memoria. */
         mapaDeMemoria[(*posicao)] = '\0';
         strcat(mapaDeMemoria, palavraHexa);
         (*posicao) += strlen(palavraHexa);
     }
 
 
+    /*  A diretiva .wfill recebe dois argumentos. O primeiros argumento é um inteiro que indica a quantidade
+     *  de vezes que devemos escrever determinado valor no mapa de memoria. O segundo argumento indica a
+     *  palavra que sera escrita, que pode ser um hexadecimal, um decimal ou um nome. */
     else if (strcmp(diretiva, ".wfill") == 0){
         char palavraHexa[64];
         Token argumento = recuperaToken(*i+2);
 
-        // Hexadecimal
+        /*  Se for um */
         if (argumento.tipo == 1003)
             strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
 
@@ -197,18 +256,20 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 }
 
 
+/*  Reescreve um hexadecimal para remover o '0x'.
+ */
 char* reescreverHexadecimal (char* hexadecimal){
 
     static char hexadecimalReescrito[64];
 
-    if (strlen(hexadecimal) == 5){
-        int i;
-        for (i = 0; i < 3; i++)
-            hexadecimalReescrito[i] = hexadecimal[i+2];
-        hexadecimalReescrito[i] = '\0';
-    }
+    // if (strlen(hexadecimal) == 5){
+    //     int i;
+    //     for (i = 0; i < 3; i++)
+    //         hexadecimalReescrito[i] = hexadecimal[i+2];
+    //     hexadecimalReescrito[i] = '\0';
+    // }
 
-    else{
+    // else{
         long i = 2;
         while (hexadecimal[i] == '0')
             i++;
@@ -218,7 +279,7 @@ char* reescreverHexadecimal (char* hexadecimal){
             j++;
         }
         hexadecimalReescrito[j-i] = '\0';
-    }
+    // }
 
     return hexadecimalReescrito;
 
