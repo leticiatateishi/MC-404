@@ -44,7 +44,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             mapaDeMemoria[(*posicao)] = '\0';
         }
         strcat(mapaDeMemoria, enderecoAtual);
-        (*posicao)+=3;
+        (*posicao)+=strlen(enderecoAtual);
     }
 
     else if (strcmp(diretiva, ".org") == 0){
@@ -184,6 +184,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
 
         if (!posicaoMultiplaDe(*posicao, 14, 3)){
+            printf("nao deveria entrar aqui para dec: %s, posicao: %d\n", argumento.palavra, *posicao);
             while (!posicaoMultiplaDe(*posicao, 14, 13)){
                 mapaDeMemoria[*posicao] = '0';
                 (*posicao) += 1;
