@@ -60,6 +60,7 @@ int emitirMapaDeMemoria()
                 // printf("endereco atual: %s\n", enderecoAtual);
                 if (escreverEndereco(i)) {
                     incrementarHexadecimal(enderecoAtual);
+                    minusculaParaMaiuscular(enderecoAtual);
                     strcat(mapaDeMemoria, enderecoAtual);
                     posicao += 3;
                 }
@@ -89,7 +90,7 @@ int emitirMapaDeMemoria()
                 removerDoisPontos(token.palavra);
                 strcpy(novoRotulo.endereco, enderecoAtual);
                 strcpy(novoRotulo.nome, token.palavra);
-                printf("Rotulo adicionado: %s - %s\n", novoRotulo.nome, novoRotulo.endereco);
+                // printf("Rotulo adicionado: %s - %s\n", novoRotulo.nome, novoRotulo.endereco);
                 adicionarRotulo(novoRotulo);
             }
 
@@ -131,14 +132,23 @@ int emitirMapaDeMemoria()
                     strcat(mapaDeMemoria, "000");
                 else{
                     if (getValor(token.palavra) == NULL && getEndereco(token.palavra) == NULL){
-                        fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", token.palavra);
+                        fprintf(stderr, "ERRO: Usado mas não definido: %s\n", token.palavra);
                         liberarMemoria();
                         return 1;
                     }
-                    if (getValor(token.palavra) != NULL)
-                        strcat(mapaDeMemoria,  getValor(token.palavra));
-                    else
-                        strcat(mapaDeMemoria, getEndereco(token.palavra));
+                    char palavra[64];
+                    if (getValor(token.palavra) != NULL){
+                        // printf("valor: %s\n",getValor(token.palavra));
+                        strcpy(palavra, getValor(token.palavra));
+                        minusculaParaMaiuscular(palavra);
+                        strcat(mapaDeMemoria,  palavra);
+                    }
+                    else{
+                        // printf("valor: %s\n",getEndereco(token.palavra));
+                        strcpy(palavra, getEndereco(token.palavra));
+                        minusculaParaMaiuscular(palavra);
+                        strcat(mapaDeMemoria,  palavra);
+                    }
                 }
                 posicao += 3;
             }
@@ -160,7 +170,8 @@ int emitirMapaDeMemoria()
 
     }
     reescreverMapa(linhasMapa);
-    printf("%s\n", mapaDeMemoria);
+    if (mapaDeMemoria[0] != '\0')
+        printf("%s\n", mapaDeMemoria);
     for (int k = 0; k < getNumberOfTokens(); k++)
         free((recuperaToken(k)).palavra);
     return 0;

@@ -48,7 +48,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
     }
 
     else if (strcmp(diretiva, ".org") == 0){
-        printf("posicao: %d\n", *posicao);
+        // printf("posicao: %d\n", *posicao);
         // if (!posicaoMultiplaDe(*posicao, 14, 0)){
         //     while (!posicaoMultiplaDe(*posicao, 14, 13)){
         //         mapaDeMemoria[*posicao] = '0';
@@ -69,7 +69,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         else{
             strcpy(enderecoAtual, reescreverHexadecimal(argumento.palavra));
         }
-        printf("endereco atual: %s\n", enderecoAtual);
+        // printf("endereco atual: %s\n", enderecoAtual);
         if (strlen(enderecoAtual) < 3){
             // printf("novo endereco sera %s(%ld)\n", novoEndereco, strlen(novoEndereco));
             int i = 0;
@@ -94,7 +94,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             else
                 strcpy(novoNome.valor, reescreverHexadecimal(segundoArgumento.palavra));
             adicionarNome(novoNome);
-            printf("Novo nome adicionado: %s - %s\n", novoNome.nome, novoNome.valor);
+            // printf("Novo nome adicionado: %s - %s\n", novoNome.nome, novoNome.valor);
         }
         *i += 2;
     }
@@ -135,6 +135,8 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
         // Decimal
         else{
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
+            minusculaParaMaiuscular(palavraHexa);
+            // strcpy(palavraHexa, strupr(palavraHexa));
         }
 
         int j = 0;
@@ -170,21 +172,24 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
                     return 1;
                 }
                 if (getValor(argumento.palavra) != NULL){
-                    strcpy(palavraHexa,  getValor(argumento.palavra));
+                    strcpy(palavraHexa, getValor(argumento.palavra));
                 }
                 else{
                     strcpy(palavraHexa, getEndereco(argumento.palavra));
                 }
+                minusculaParaMaiuscular(palavraHexa);
             }
             // printf("palavra a ser escrita: %s\n", palavraHexa);
         }
 
         // Decimal
-        else
+        else{
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
+            minusculaParaMaiuscular(palavraHexa);
+        }
 
         if (!posicaoMultiplaDe(*posicao, 14, 3)){
-            printf("nao deveria entrar aqui para dec: %s, posicao: %d\n", argumento.palavra, *posicao);
+            // printf("nao deveria entrar aqui para dec: %s, posicao: %d\n", argumento.palavra, *posicao);
             while (!posicaoMultiplaDe(*posicao, 14, 13)){
                 mapaDeMemoria[*posicao] = '0';
                 (*posicao) += 1;
@@ -194,6 +199,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
             (*linhasMapa)++;
             // mapaDeMemoria[*posicao] = '\0';
             incrementarHexadecimal(enderecoAtual);
+            minusculaParaMaiuscular(enderecoAtual);
             strcat(mapaDeMemoria, enderecoAtual);
             (*posicao) += 4;
         }
@@ -211,6 +217,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
                 mapaDeMemoria[*posicao] = '\n';
                 (*posicao)++;
                 incrementarHexadecimal(enderecoAtual);
+                minusculaParaMaiuscular(enderecoAtual);
                 // mapaDeMemoria[*posicao] = '\0';
                 strcat(mapaDeMemoria, enderecoAtual);
                 (*posicao) += 3;
@@ -249,7 +256,7 @@ char* reescreverHexadecimal (char* hexadecimal){
         hexadecimalReescrito[j-i] = '\0';
     }
 
-    printf("%s reescrito é %s\n", hexadecimal, hexadecimalReescrito);
+    // printf("%s reescrito é %s\n", hexadecimal, hexadecimalReescrito);
     return hexadecimalReescrito;
 
 }
@@ -259,7 +266,7 @@ char* reescreverHexadecimal (char* hexadecimal){
 void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa){
 
     if (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
-        printf("instrucao: %s posicao: %d\n", instrucao, *posicao);
+        // printf("instrucao: %s posicao: %d\n", instrucao, *posicao);
         while (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
             if (posicaoMultiplaDe(*posicao, 14, 13)){
                 mapaDeMemoria[(*posicao)++] = '\n';
@@ -404,4 +411,16 @@ int escreverEndereco (int i){
             return 0;
     }
     return 0;
+}
+
+
+void minusculaParaMaiuscular (char* palavra){
+    int i = 0;
+
+    while (i < strlen(palavra)) {
+       if (palavra[i] >= 'a' && palavra[i] <= 'z') {
+          palavra[i] -= 32;
+       }
+       i++;
+    }
 }

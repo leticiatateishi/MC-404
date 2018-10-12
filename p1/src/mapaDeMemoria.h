@@ -30,4 +30,6 @@ void incrementarHexadecimal (char* hexadecimal);
 
 int escreverEndereco (int i);
 
+void minusculaParaMaiuscular (char* palavra);
+
 #endif
