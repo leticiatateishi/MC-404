@@ -256,7 +256,23 @@ char* reescreverHexadecimal (char* hexadecimal){
 
 
 
-void reescreverInstrucao (char* instrucao){
+void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa){
+
+    if (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
+        printf("instrucao: %s posicao: %d\n", instrucao, *posicao);
+        while (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
+            if (posicaoMultiplaDe(*posicao, 14, 13)){
+                mapaDeMemoria[(*posicao)++] = '\n';
+                (*linhasMapa)++;
+                incrementarHexadecimal(enderecoAtual);
+                strcat(mapaDeMemoria, enderecoAtual);
+                (*posicao) += 3;
+                break;
+            }
+            mapaDeMemoria[(*posicao)++] = '0';
+        }
+        mapaDeMemoria[*posicao] = '\0';
+    }
 
     if (!strcmp(instrucao, "ld"))
         strcat(mapaDeMemoria, "01");

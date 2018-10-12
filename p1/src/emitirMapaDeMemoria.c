@@ -69,7 +69,7 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for uma instrução. */
             if (token.tipo == 1000){
-                reescreverInstrucao(token.palavra);
+                reescreverInstrucao(token.palavra, enderecoAtual, &posicao, &linhasMapa);
                 // strcat(mapaDeMemoria, instrucao);
                 posicao += 2;
             }
@@ -95,16 +95,34 @@ int emitirMapaDeMemoria()
 
             /*  Se o token for um hexadecimal. */
             else if (token.tipo == 1003){
-                strcat(mapaDeMemoria, token.palavra);
-                posicao += 3;
+                char hexa[13];
+                strcpy(hexa, reescreverHexadecimal(token.palavra));
+                if(strlen(hexa) < 3){
+                    int i = 0;
+                    while (i < 3-strlen(hexa)){
+                        mapaDeMemoria[posicao++] = '0';
+                        i++;
+                    }
+                    mapaDeMemoria[posicao] = '\0';
+                }
+                strcat(mapaDeMemoria, hexa);
+                posicao += strlen(hexa);
             }
 
             /*  Se o token for um decimal. */
             else if (token.tipo == 1004){
                 char hexa[13];
                 sprintf(hexa, "%x", atoi(token.palavra));
+                if(strlen(hexa) < 3){
+                    int i = 0;
+                    while (i < 3-strlen(hexa)){
+                        mapaDeMemoria[posicao++] = '0';
+                        i++;
+                    }
+                    mapaDeMemoria[posicao] = '\0';
+                }
                 strcat(mapaDeMemoria, hexa);
-                posicao += 3;
+                posicao += strlen(hexa);
             }
 
             /*  Se o token for um nome. */
