@@ -4,6 +4,7 @@
 typedef struct Rotulo{
     char nome[64];
     char endereco[4];
+    int flag_esquerda;
 }Rotulo;
 
 typedef struct tipoNome{
@@ -20,6 +21,8 @@ void adicionarRotulo(Rotulo rotulo);
 // Rotulo* criarRotulo(char* palavra, char* endereco);
 
 char* getEndereco (char* palavra);
+
+int getFlag_esquerda (char* palavra);
 
 Rotulo recuperaRotulo(int posicao);
 

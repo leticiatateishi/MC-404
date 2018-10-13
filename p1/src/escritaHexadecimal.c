@@ -185,44 +185,53 @@ int *linhasMapa){
      *  de vezes que devemos escrever determinado valor no mapa de memoria. O segundo argumento indica a
      *  palavra que sera escrita, que pode ser um hexadecimal, um decimal ou um nome. */
     else if (strcmp(diretiva, ".wfill") == 0){
+
+        /*  Funcao semelhante ao procedimento tomado com a diretiva .word */
         char palavraHexa[64];
         Token argumento = recuperaToken(*i+2);
 
-        /*  Se for um */
+        /*  Se for um hexadecimal, removemos o '0x' */
         if (argumento.tipo == 1003)
             strcpy(palavraHexa, reescreverHexadecimal(argumento.palavra));
 
-        // Nome
+        /*  Se for um nome */
         else if (argumento.tipo == 1005){
+
+            /*  Ignoramos se for a primeira iteracao */
             if (verificarRotulos == 0)
                 strcpy(palavraHexa, "000");
+
+            /*  Se for a segunda iteracao, tentamos recuperar o endereco do rotulo ou o valor do nome */
             else {
+
+                /*  Se nao encontrarmos um nome ou um rotulo compativel */
                 if (getValor(argumento.palavra) == NULL && getEndereco(argumento.palavra) == NULL){
                     fprintf(stderr, "ERRO: Usado mas não definido: %s!\n", argumento.palavra);
                     return 1;
                 }
-                if (getValor(argumento.palavra) != NULL){
+
+                /*  Se encontrarmos um nome compativel, armazenamos seu valor */
+                if (getValor(argumento.palavra) != NULL)
                     strcpy(palavraHexa, getValor(argumento.palavra));
-                }
-                else{
+                /*  Se encontrarmos um rotulo compativel, pegamos o seu endereco*/
+                else
                     strcpy(palavraHexa, getEndereco(argumento.palavra));
-                }
                 minusculaParaMaiuscular(palavraHexa);
             }
         }
 
-        // Decimal
+        /*  Se for um decimal, apenas o reescrevemos como hexadecimal */
         else{
             sprintf(palavraHexa, "%x", atoi(argumento.palavra));
             minusculaParaMaiuscular(palavraHexa);
         }
 
+        /*  Completamos a palavra anterior com zeros e pulamos linha caso necessario.*/
         if (!posicaoMultiplaDe(*posicao, 14, 3)){
             while (!posicaoMultiplaDe(*posicao, 14, 13)){
                 mapaDeMemoria[*posicao] = '0';
                 (*posicao) += 1;
             }
-            // mapaDeMemoria[*posicao] = '\0';
             mapaDeMemoria[*posicao] = '\n';
             (*linhasMapa)++;
             incrementarHexadecimal(enderecoAtual);
@@ -230,6 +239,9 @@ int *linhasMapa){
             strcat(mapaDeMemoria, enderecoAtual);
             (*posicao) += 4;
         }
+
+        /*  Repetimos o procedimento tantas vezes que for necessario, sempre completando com
+         *  zeros, pulando linhas e incrementando o endereco */
         for (int k = 0; k < atoi((recuperaToken(*i+1)).palavra); k++){
             int j = 0;
             while (j < 10-strlen(palavraHexa)){
@@ -240,6 +252,9 @@ int *linhasMapa){
             mapaDeMemoria[*posicao] = '\0';
             strcat(mapaDeMemoria, palavraHexa);
             (*posicao) += strlen(palavraHexa);
+
+            /*  So pulamos linha e incrementamos o endereco se nao for a ultima vez que escrevemos
+             *  a palavra */
             if (k < atoi(recuperaToken(*i+1).palavra)-1){
                 mapaDeMemoria[*posicao] = '\n';
                 (*posicao)++;
@@ -261,128 +276,115 @@ int *linhasMapa){
 char* reescreverHexadecimal (char* hexadecimal){
 
     static char hexadecimalReescrito[64];
+    long i = 2;
 
-    // if (strlen(hexadecimal) == 5){
-    //     int i;
-    //     for (i = 0; i < 3; i++)
-    //         hexadecimalReescrito[i] = hexadecimal[i+2];
-    //     hexadecimalReescrito[i] = '\0';
-    // }
+    /*  Ignora os zeros a esquerda. */
+    while (hexadecimal[i] == '0')
+        i++;
+    long j = i;
 
-    // else{
-        long i = 2;
-        while (hexadecimal[i] == '0')
-            i++;
-        long j = i;
-        while (j < strlen(hexadecimal)){
-            hexadecimalReescrito[j-i] = hexadecimal[j];
-            j++;
-        }
-        hexadecimalReescrito[j-i] = '\0';
-    // }
+    /*  Copia os algarismos nao-zero */
+    while (j < strlen(hexadecimal)){
+        hexadecimalReescrito[j-i] = hexadecimal[j];
+        j++;
+    }
+    hexadecimalReescrito[j-i] = '\0';
 
     return hexadecimalReescrito;
 
 }
 
 
+/*  Verifica a palavra, identifica qual instrucao ela representa e escreve no mapa de memoria
+ *  o operation code dessa instrucao
+ */
+void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa, int i){
 
-void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa){
-
-    if (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
-        // printf("instrucao: %s posicao: %d\n", instrucao, *posicao);
-        while (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
-            if (posicaoMultiplaDe(*posicao, 14, 13)){
-                mapaDeMemoria[(*posicao)++] = '\n';
-                (*linhasMapa)++;
-                incrementarHexadecimal(enderecoAtual);
-                strcat(mapaDeMemoria, enderecoAtual);
-                (*posicao) += 3;
-                break;
-            }
-            mapaDeMemoria[(*posicao)++] = '0';
+    /*  Se a posicao atual nao for o inicio da palavra da esquerda ou da palavra da direita,
+     *  incrementamos com zero conforme necessario ou mudamos da linha tambem se necessario. */
+    while (!posicaoMultiplaDe(*posicao, 14, 3) && !posicaoMultiplaDe(*posicao, 14, 8)){
+        if (posicaoMultiplaDe(*posicao, 14, 13)){
+            mapaDeMemoria[(*posicao)++] = '\n';
+            (*linhasMapa)++;
+            incrementarHexadecimal(enderecoAtual);
+            strcat(mapaDeMemoria, enderecoAtual);
+            (*posicao) += 3;
+            break;
         }
-        mapaDeMemoria[*posicao] = '\0';
+        mapaDeMemoria[(*posicao)++] = '0';
     }
+    mapaDeMemoria[*posicao] = '\0';
+
+    /*  Verificamos todas as possibilidades de op codes de instrucoes */
 
     if (!strcmp(instrucao, "ld"))
         strcat(mapaDeMemoria, "01");
-        // strcpy(hexadecimal, "01");
 
     else if (!strcmp(instrucao, "ldinv"))
         strcat(mapaDeMemoria, "02");
-        // strcpy(hexadecimal, "02");
 
     else if (!strcmp(instrucao, "ldabs"))
         strcat(mapaDeMemoria, "03");
-        // strcpy(hexadecimal, "03");
 
     else if (!strcmp(instrucao, "ldmq"))
         strcat(mapaDeMemoria, "0A");
-        // strcpy(hexadecimal, "0A");
 
     else if (!strcmp(instrucao, "ldmqmx"))
         strcat(mapaDeMemoria, "09");
-        // strcpy(hexadecimal, "09");
 
     else if (!strcmp(instrucao, "store"))
         strcat(mapaDeMemoria, "21");
-        // strcpy(hexadecimal, "21");
 
-    else if (!strcmp(instrucao, "jump"))
-        strcat(mapaDeMemoria, "0D");
-        // strcpy(hexadecimal, "0D");
+    /*  Se o argumento de jump for um rotulo, devemos analisar se esse rotulo indica uma posicao
+     *  de uma palavra da esquerda ou da direita. */
+    else if (!strcmp(instrucao, "jump")){
+        Token proximo = recuperaToken(i+1);
+        if (proximo.tipo == 1005 && !getFlag_esquerda(proximo.palavra))
+            strcat(mapaDeMemoria, "0E");
+        else
+            strcat(mapaDeMemoria, "0D");
+    }
 
     else if (!strcmp(instrucao, "jumpl"))
         strcat(mapaDeMemoria, "0F");
-        // strcpy(hexadecimal, "0F");
 
     else if (!strcmp(instrucao, "jumpr"))
         strcat(mapaDeMemoria, "10");
-        // strcpy(hexadecimal, "10");
 
     else if (!strcmp(instrucao, "add"))
         strcat(mapaDeMemoria, "05");
-        // strcpy(hexadecimal, "05");
 
     else if (!strcmp(instrucao, "addabs"))
         strcat(mapaDeMemoria, "07");
-        // strcpy(hexadecimal, "07");
 
     else if (!strcmp(instrucao, "sub"))
         strcat(mapaDeMemoria, "06");
-        // strcpy(hexadecimal, "06");
 
     else if (!strcmp(instrucao, "subabs"))
         strcat(mapaDeMemoria, "08");
-        // strcpy(hexadecimal, "08");
 
     else if (!strcmp(instrucao, "mult"))
         strcat(mapaDeMemoria, "0B");
-        // strcpy(hexadecimal, "0B");
 
     else if (!strcmp(instrucao, "div"))
         strcat(mapaDeMemoria, "0C");
-        // strcpy(hexadecimal, "0C");
 
     else if (!strcmp(instrucao, "rsh"))
         strcat(mapaDeMemoria, "15");
-        // strcpy(hexadecimal, "15");
 
     else if (!strcmp(instrucao, "lsh"))
         strcat(mapaDeMemoria, "14");
-        // strcpy(hexadecimal, "14");
 
     else if (!strcmp(instrucao, "storal"))
         strcat(mapaDeMemoria, "12");
-        // strcpy(hexadecimal, "12");
 
     else if (!strcmp(instrucao, "storar"))
         strcat(mapaDeMemoria, "13");
-        // strcpy(hexadecimal, "13");
 }
 
 
+/*  Recebe um numero hexadecimal e retorna esse numero incrementado, tambem em hexadecimal.
+ */
 void incrementarHexadecimal (char* hexadecimal){
 
     int numero = (int)strtol(hexadecimal, NULL, 16);
@@ -391,6 +393,7 @@ void incrementarHexadecimal (char* hexadecimal){
     sprintf(novoHexa, "%x", numero);
     long tamanho = strlen(novoHexa);
     hexadecimal[0] = '\0';
+    /*  Completa com zeros caso necessario. */
     if(tamanho < 3){
         int i = 0;
         while(i < 3-tamanho){
@@ -406,12 +409,8 @@ void incrementarHexadecimal (char* hexadecimal){
 }
 
 
-/*  Retorna 1 se a posição atual for o final da palavra da direita, ou 0 se a posição atual
- *  for o final de uma palavra da esquerda.
- *  Para verificar se estamos escrevendo a palavra da esquerda ou da direita:
- *  Verificar se a posicao após a escrita do endereço é múltiplo de 13. Se for, estamos na palavra
- *  da direita e devemos pular uma linha. Se não for, estamos na palavra da esquerda e devemos
- *  adicionar um espaço.
+/*  Retorna 1 se a posição atual for estiver na mesma posicao (porem possivelmente em uma linha
+ *  diferente) da posicao base.
  */
  int posicaoMultiplaDe (int posicao, int multiplo, int posicaoBase){
      int i = 0;
@@ -424,7 +423,10 @@ void incrementarHexadecimal (char* hexadecimal){
  }
 
 
-
+/*  Verifica se devemos escrever um novo endereço em uma nova linha ou nao.
+ *  Um novo endereco deve ser escrito se um de seus proximos tokens for uma instrucao, ou a diretiva
+ *  .word, ou a diretiva .wfill, sem que haja um .org ou um .align antes
+ */
 int escreverEndereco (int i){
     Token token;
     for (int j=i; j < getNumberOfTokens(); j++){
@@ -438,6 +440,8 @@ int escreverEndereco (int i){
 }
 
 
+/*  Reescreve uma string para que todas as suas letras minúsculas sejam maiusculas.
+ */
 void minusculaParaMaiuscular (char* palavra){
     int i = 0;
 

@@ -7,9 +7,9 @@ char mapaDeMemoria[4096];
 
 /*  Funções referentes ao arquivo emitirMapaDeMemoria.c
  */
- void removerDoisPontos (char* rotulo);
-
  void reescreverMapa();
+
+ void removerDoisPontos (char* rotulo);
 
 
 /*  Funções referentes ao arquivo escritaHexadecimal.c
@@ -20,7 +20,7 @@ int reescreverDiretiva (char* diretiva, char enderecoAtual[4], int* posicao, int
 
 char* reescreverHexadecimal (char* hexadecimal);
 
-void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa);
+void reescreverInstrucao (char* instrucao, char* enderecoAtual, int* posicao, int* linhasMapa, int i);
 
 void incrementarHexadecimal (char* hexadecimal);
 

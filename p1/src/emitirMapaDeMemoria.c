@@ -77,7 +77,7 @@ int emitirMapaDeMemoria()
             /*  Se o token for uma instrução, a escrevemos no mapa e incrementamos a posicao
              *  de dois. */
             if (token.tipo == 1000){
-                reescreverInstrucao(token.palavra, enderecoAtual, &posicao, &linhasMapa);
+                reescreverInstrucao(token.palavra, enderecoAtual, &posicao, &linhasMapa, i);
                 posicao += 2;
             }
 
@@ -100,6 +100,10 @@ int emitirMapaDeMemoria()
                 removerDoisPontos(token.palavra);
                 strcpy(novoRotulo.endereco, enderecoAtual);
                 strcpy(novoRotulo.nome, token.palavra);
+                if (posicaoMultiplaDe(posicao, 14, 3))
+                    novoRotulo.flag_esquerda = 1;
+                else
+                    novoRotulo.flag_esquerda = 0;
                 adicionarRotulo(novoRotulo);
             }
 
