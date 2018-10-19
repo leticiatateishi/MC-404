@@ -1,6 +1,8 @@
 .data
 input_buffer:   .skip 32
 output_buffer:  .skip 32
+@previous_line:  .skip 3072
+@current_line:   .skip 3072
 
 .text
 .align 4
@@ -182,6 +184,14 @@ _start:
     mov r2, #16            @ Base
     bl atoi                @ Chama atoi
 
+    mov r1, #0             @ linha
+    mov r2, #0             @ coluna
+
+    cmp r1, r0
+    bge line_done
+
+    colunm_done>
+    line_done:
 
     ldr r1, =output_buffer @ endereço para armazenar a string referente ao inteiro
     mov r2, #10            @ Base a ser impressa
