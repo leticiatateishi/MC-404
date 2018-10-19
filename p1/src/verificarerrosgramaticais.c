@@ -19,6 +19,7 @@ int verificarErrosGramaticais(){
             argumento = tokenDiretiva(i, atual);
             if (argumento == 0){
                 fprintf(stderr, "ERRO GRAMATICAL: palavra na linha %d!\n", atual.linha);
+                liberarMemoria();
                 return 1;
             }
             /*  Quando não há erro gramatical, incrementamos i com a quantidade de argumentos que a
@@ -31,6 +32,7 @@ int verificarErrosGramaticais(){
             argumento = tokenRotulo(i, atual);
             if (argumento == 0){
                 fprintf(stderr, "ERRO GRAMATICAL: palavra na linha %d!\n", atual.linha);
+                liberarMemoria();
                 return 1;
             }
             /*  Como rótulos não possuem argumentos como diretivas, não precisamos incrementar i */
@@ -41,6 +43,7 @@ int verificarErrosGramaticais(){
             argumento = tokenInstrucao(i, atual);
             if (argumento == 0){
                 fprintf(stderr, "ERRO GRAMATICAL: palavra na linha %d!\n", atual.linha);
+                liberarMemoria();
                 return 1;
             }
             /*  Quando não há erro gramatical, temos duas opções: a instrução possui apenas um
@@ -55,6 +58,7 @@ int verificarErrosGramaticais(){
         /*  Se o token for um nome, um decimal ou um hexadecimal */
         else{
             fprintf(stderr, "ERRO GRAMATICAL: palavra na linha %d!\n", atual.linha);
+            liberarMemoria();
             return 1;
         }
     }

@@ -39,8 +39,12 @@ int processarEntrada(char* entrada, unsigned tamanho){
 
             /*  Finaliza a palavra, verifica de qual tipo ela é e cria um novo token*/
             if (palavra[0] != '\0'){
+                // palavra[] = '\0';
                 int verificacao = verificarPalavra(palavra, numero_linha);
-                if (verificacao == 1)  return 1;
+                if (verificacao == 1){
+                    liberarMemoria();
+                    return 1;
+                }
                 else
                     posicao++;
                 palavra[0] = '\0';
@@ -67,7 +71,10 @@ int processarEntrada(char* entrada, unsigned tamanho){
             /*  Se houver palavra, verificamos de qual tipo ela é, criamos um novo token e a "zeramos" para podermos
              *  armazenar a próxima palavra */
             int verificacao = verificarPalavra(palavra, numero_linha);
-            if (verificacao == 1)  return 1;
+            if (verificacao == 1){
+                liberarMemoria();
+                return 1;
+            }
             else
                 posicao ++;
             palavra[0] = '\0';
@@ -89,7 +96,14 @@ int processarEntrada(char* entrada, unsigned tamanho){
         }
     }
 
+    // return 0;
     return verificarErrosGramaticais();
+}
+
+
+void liberarMemoria(){
+    for (int k = 0; k < getNumberOfTokens(); k++)
+        free((recuperaToken(k)).palavra);
 }
 
 
@@ -97,13 +111,13 @@ int processarEntrada(char* entrada, unsigned tamanho){
  *  Retorna o token criado.
  *  Essa função só é chamada após a verificação de erros léxicos
  */
-Token criarToken(TipoDoToken t, char p[64], unsigned l){
-    Token novoToken;
+void criarToken(Token novoToken, TipoDoToken t, char *p, unsigned l){
     novoToken.tipo = t;
     novoToken.linha = l;
-    novoToken.palavra = malloc(strlen(p));
+    novoToken.palavra = malloc(64*sizeof(char));
     strcpy(novoToken.palavra, p);
-    return novoToken;
+
+    // token->palavra = p;
 }
 
 
@@ -125,6 +139,7 @@ int verificarPalavra(char* palavra, int numero_linha){
 
     /*  Reescreve a palavra e determina o seu tipo */
     reescreverPalavra(palavra);
+    // printf("%s\n", palavra);
     int tipo = definirTipoToken(palavra);
 
     /*  Retorna 1 se a palavra não se encaixar nos tipos possíveis */
@@ -135,7 +150,12 @@ int verificarPalavra(char* palavra, int numero_linha){
 
     /*  Cria um novo token com os atributos recebidos como parâmetros da função e o adiciona à lista
      *  de tokens. Retorna 0 pois não há erro léxico  */
-    Token novoToken = criarToken(tipo, palavra, numero_linha);
+     Token novoToken;
+     // criarToken(novoToken, tipo, palavra, numero_linha);
+     novoToken.tipo = tipo;
+     novoToken.linha = numero_linha;
+     novoToken.palavra = malloc(64*sizeof(char));
+     strcpy(novoToken.palavra, palavra);
     adicionarToken(novoToken);
     return 0;
 }
