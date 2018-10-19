@@ -65,9 +65,11 @@ _start:
                 b column_loop
 
         column_done:
-            @    mov r4, =current_line
-            @    mov r5, =previous_line
-            @    str r5, [=current_line]
+            push {r0, r1, r2}
+            ldr r0, =current_line
+            ldr r1, =previous_line
+            bl copy_array
+            pop {r0, r1, r2}
             add r1, r1, #1
             b lines_loop
     line_done:
@@ -81,6 +83,22 @@ _start:
 
     mov r0, #0             @ Status de retorno
     b exit
+
+@ Copia current_line para previous_line
+@ Parametros:
+@   r0: endereco de current_line
+@   r1: endereco de previous_line
+@   r2: tamanho de current_line
+copy_array:
+    push {r4}
+    mov r4, #0
+    copy_loop:
+        cmp r4, r2
+        bge copy_loop_end
+        ldr 
+        add r4, r4, #1
+    copy_loop_end:
+    pop {r4}
 
 
 @ Divide R0 por R1, subtraindo sucessivamente
