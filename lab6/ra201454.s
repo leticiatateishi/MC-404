@@ -15,52 +15,69 @@ _start:
     ldr r0, =input_buffer
     mov r1, #4             @ 3 caracteres + '\n'
     bl  read
-    mov r4, r0             @ copia o retorno para r4.
 
     ldr r0, =input_buffer  @ endereço entrada
     mov r1, #3             @ Numero caracteres
     mov r2, #16            @ Base
-    bl atoi                @ Chama atoi
+    bl atoi                @ Chama atoi (r0 := n em inteiro)
 
     mov r1, #0             @ linha
 
     lines_loop:
-        cmp r1, r0              @ inicio do loop que itera nas linhas
-        bge line_done           @ 0 < linha < n
+        cmp r1, r0             @ inicio do loop que itera nas linhas
+        bge line_done          @ 0 < linha < n
         mov r2, #0             @ coluna
 
         column_loop:
-            cmp r2, r1              @ inicio do loop que itera nas colunas
-            bgt colunm_done         @ 0 < coluna <= linha
+            cmp r2, r1                  @ inicio do loop que itera nas colunas
+            bgt column_done             @ 0 < coluna <= linha
 
-            cmp r2, #0              @ se r2 == 0
-            beq put_one             @ salta para put_one e coloca um no vetor atual
-            cmp r1, r2              @ se r1 == r2
-            beq put_one             @ salta para put_one e coloca um no vetor atual
-            mov r5, [previous_line, r2]
-            add r4, r5, [previous_line, r2], -1
-            strb r4, [current_line, r2]
+            cmp r2, #0                  @ se r2 == 0
+            beq put_one                 @ salta para put_one e coloca um no vetor atual
+            cmp r1, r2                  @ se r1 == r2
+            beq put_one                 @ salta para put_one e coloca um no vetor atual
+
+    	    ldr r6, =previous_line      @ r6 recebe o endereço do vetor antigo
+            ldr r5, [r6, r2, lsl #2]    @ r5 := previous_line[4*coluna]
+    	    sub r7, r2, #1	            @ r7 := coluna-1
+    	    ldr r8, [r6, r7, lsl #2]	@ r8 := previous_line[4*(coluna-1)]
+            add r4, r5, r8	            @ r4 := previous_line[coluna]+previous_line[coluna-1]
+            b continue
+
             put_one:
-                mov r4, #1
-                strb r4, [current_line, r2]
-            push {r0, r1, r2}
-            mov r0, r4
-            mov r1, #1
-            bl write
-            pop {r0, r1, r2}
+                mov r4, #1              @ r4 := 1
 
-        colunm_done:
-            mov r4, =current_line
-            mov r5, =previous_line
-            str r5, [=current_line]
+            continue:
+                ldr r5, =current_line       @ r5 := &current_line
+                add r5, r5, r2, lsl #2      @ r5 := &current_line[coluna*4]
+                str r4, [r5]                @ current_line[coluna*4] = r4
+
+                push {r0, r1, r2}           @ salva os registradores
+                mov r0, r4                  @ r0 := previous_line[coluna]+previous_line[coluna-1]
+                ldr r1, =output_buffer
+                mov r2, #16
+                bl itoa
+                mov r1, #4                  @ r1 := 1 (numero de bytes a serem escritos)
+                bl write                    @ escreve r0
+                pop {r0, r1, r2}            @ recupera os registradores
+
+                add r2, r2, #1
+                b column_loop
+
+        column_done:
+            @    mov r4, =current_line
+            @    mov r5, =previous_line
+            @    str r5, [=current_line]
+            add r1, r1, #1
+            b lines_loop
     line_done:
 
 
-    ldr r1, =output_buffer @ endereço para armazenar a string referente ao inteiro
-    mov r2, #10            @ Base a ser impressa
-    bl itoa                @ Chama itoa
+    @ldr r1, =output_buffer @ endereço para armazenar a string referente ao inteiro
+    @mov r2, #10            @ Base a ser impressa
+@    bl itoa                @ Chama itoa
 
-    bl write
+@    bl write
 
     mov r0, #0             @ Status de retorno
     b exit
