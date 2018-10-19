@@ -8,6 +8,64 @@ current_line:   .skip 3072
 .align 4
 .globl _start
 
+
+@ Função principal
+_start:
+    @ Chama a funcao "read" para ler 4 caracteres da entrada padrao
+    ldr r0, =input_buffer
+    mov r1, #4             @ 3 caracteres + '\n'
+    bl  read
+    mov r4, r0             @ copia o retorno para r4.
+
+    ldr r0, =input_buffer  @ endereço entrada
+    mov r1, #3             @ Numero caracteres
+    mov r2, #16            @ Base
+    bl atoi                @ Chama atoi
+
+    mov r1, #0             @ linha
+
+    lines_loop:
+        cmp r1, r0              @ inicio do loop que itera nas linhas
+        bge line_done           @ 0 < linha < n
+        mov r2, #0             @ coluna
+
+        column_loop:
+            cmp r2, r1              @ inicio do loop que itera nas colunas
+            bgt colunm_done         @ 0 < coluna <= linha
+
+            cmp r2, #0              @ se r2 == 0
+            beq put_one             @ salta para put_one e coloca um no vetor atual
+            cmp r1, r2              @ se r1 == r2
+            beq put_one             @ salta para put_one e coloca um no vetor atual
+            mov r5, [previous_line, r2]
+            add r4, r5, [previous_line, r2], -1
+            strb r4, [current_line, r2]
+            put_one:
+                mov r4, #1
+                strb r4, [current_line, r2]
+            push {r0, r1, r2}
+            mov r0, r4
+            mov r1, #1
+            bl write
+            pop {r0, r1, r2}
+
+        colunm_done:
+            mov r4, =current_line
+            mov r5, =previous_line
+            str r5, [=current_line]
+    line_done:
+
+
+    ldr r1, =output_buffer @ endereço para armazenar a string referente ao inteiro
+    mov r2, #10            @ Base a ser impressa
+    bl itoa                @ Chama itoa
+
+    bl write
+
+    mov r0, #0             @ Status de retorno
+    b exit
+
+
 @ Divide R0 por R1, subtraindo sucessivamente
 @ Parametros:
 @   r0: Inteiro positivo divisor
@@ -169,60 +227,3 @@ itoa_done:
     bl reverse
     mov r1, r5              @i (number of digits)
     pop {r4-r5, pc}
-
-
-@ Função principal
-_start:
-    @ Chama a funcao "read" para ler 4 caracteres da entrada padrao
-    ldr r0, =input_buffer
-    mov r1, #4             @ 3 caracteres + '\n'
-    bl  read
-    mov r4, r0             @ copia o retorno para r4.
-
-    ldr r0, =input_buffer  @ endereço entrada
-    mov r1, #3             @ Numero caracteres
-    mov r2, #16            @ Base
-    bl atoi                @ Chama atoi
-
-    mov r1, #0             @ linha
-
-    lines_loop:
-        cmp r1, r0              @ inicio do loop que itera nas linhas
-        bge line_done           @ 0 < linha < n
-        mov r2, #0             @ coluna
-
-        column_loop:
-            cmp r2, r1              @ inicio do loop que itera nas colunas
-            bgt colunm_done         @ 0 < coluna <= linha
-
-            cmp r2, #0              @ se r2 == 0
-            beq put_one             @ salta para put_one e coloca um no vetor atual
-            cmp r1, r2              @ se r1 == r2
-            beq put_one             @ salta para put_one e coloca um no vetor atual
-            mov r5, [previous_line, r2]
-            add r4, r5, [previous_line, r2], -1
-            strb r4, [current_line, r2]
-            put_one:
-                mov r4, #1
-                strb r4, [current_line, r2]
-            push {r0, r1, r2}
-            mov r0, r4
-            mov r1, #1
-            bl write
-            pop {r0, r1, r2}
-
-        colunm_done:
-            mov r4, =current_line
-            mov r5, =previous_line
-            str r5, [=current_line]
-    line_done:
-
-
-    ldr r1, =output_buffer @ endereço para armazenar a string referente ao inteiro
-    mov r2, #10            @ Base a ser impressa
-    bl itoa                @ Chama itoa
-
-    bl write
-
-    mov r0, #0             @ Status de retorno
-    b exit
