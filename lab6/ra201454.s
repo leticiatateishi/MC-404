@@ -1,8 +1,8 @@
 .data
 input_buffer:   .skip 32
 output_buffer:  .skip 32
-@previous_line:  .skip 3072
-@current_line:   .skip 3072
+previous_line:  .skip 3072
+current_line:   .skip 3072
 
 .text
 .align 4
@@ -51,7 +51,7 @@ read:
 @  r0: endereco do buffer de memoria que contem a sequencia de bytes.
 @  r1: numero de bytes a serem escritos
 write:
-    push {r4,r5, lr}
+    push {r4,r5, r7, lr}
     mov r4, r0
     mov r5, r1
     mov r0, #1         @ stdout file descriptor = 1
@@ -59,7 +59,7 @@ write:
     mov r2, r5         @ tamanho do buffer.
     mov r7, #4         @ write
     svc 0x0
-    pop {r4, r5, lr}
+    pop {r4, r5, r7, lr}
     mov pc, lr
 
 @ Finaliza a execucao de um processo.
@@ -185,13 +185,38 @@ _start:
     bl atoi                @ Chama atoi
 
     mov r1, #0             @ linha
-    mov r2, #0             @ coluna
 
-    cmp r1, r0
-    bge line_done
+    lines_loop:
+        cmp r1, r0              @ inicio do loop que itera nas linhas
+        bge line_done           @ 0 < linha < n
+        mov r2, #0             @ coluna
 
-    colunm_done>
+        column_loop:
+            cmp r2, r1              @ inicio do loop que itera nas colunas
+            bgt colunm_done         @ 0 < coluna <= linha
+
+            cmp r2, #0              @ se r2 == 0
+            beq put_one             @ salta para put_one e coloca um no vetor atual
+            cmp r1, r2              @ se r1 == r2
+            beq put_one             @ salta para put_one e coloca um no vetor atual
+            mov r5, [previous_line, r2]
+            add r4, r5, [previous_line, r2], -1
+            strb r4, [current_line, r2]
+            put_one:
+                mov r4, #1
+                strb r4, [current_line, r2]
+            push {r0, r1, r2}
+            mov r0, r4
+            mov r1, #1
+            bl write
+            pop {r0, r1, r2}
+
+        colunm_done:
+            mov r4, =current_line
+            mov r5, =previous_line
+            str r5, [=current_line]
     line_done:
+
 
     ldr r1, =output_buffer @ endereço para armazenar a string referente ao inteiro
     mov r2, #10            @ Base a ser impressa
