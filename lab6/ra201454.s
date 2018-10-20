@@ -48,7 +48,7 @@ _start:
                 mov r4, #1              @ r4 := 1
 
             continue:
-                ldr r5, =current_line       @ r5 := &current_line
+                ldr r5, =current_line       @ r6 := &current_line
                 add r5, r5, r2, lsl #2      @ r5 := &current_line[coluna*4]
                 str r4, [r5]                @ current_line[coluna*4] = r4
 
