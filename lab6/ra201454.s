@@ -16,29 +16,24 @@ zero:           .asciz "0"
 _start:
     @ Chama a funcao "read" para ler 4 caracteres da entrada padrao
     ldr r0, =input_buffer
-    mov r1, #4             @ 3 caracteres + '\n'
+    mov r1, #4                  @ 3 caracteres + '\n'
     bl  read
 
-    ldr r0, =input_buffer  @ endereço entrada
-    mov r1, #3             @ Numero caracteres
-    mov r2, #16            @ Base
-    bl atoi                @ Chama atoi (r0 := n em inteiro)
+    ldr r0, =input_buffer       @ endereço entrada
+    mov r1, #3                  @ Numero caracteres
+    mov r2, #16                 @ Base
+    bl atoi                     @ Chama atoi (r0 := n em inteiro)
 
-    mov r1, #0             @ linha
+    mov r1, #0                  @ linha
 
     lines_loop:
-        cmp r1, r0             @ inicio do loop que itera nas linhas
-        bge line_done          @ 0 < linha < n
-        mov r2, #0             @ coluna
+        cmp r1, r0                  @ inicio do loop que itera nas linhas
+        bge line_done               @ 0 < linha < n
+        mov r2, #0                  @ coluna
 
         column_loop:
             cmp r2, r1                  @ inicio do loop que itera nas colunas
             bgt column_done             @ 0 < coluna <= linha
-
-            @push {r0, r1, r2}
-            @cmp r2, #0
-            @bne print_space
-            @pop {r0, r1, r2}
 
             cmp r2, #0                  @ se r2 == 0
             beq put_one                 @ salta para put_one e coloca um no vetor atual
@@ -49,53 +44,53 @@ _start:
             ldr r5, [r6, r2, lsl #2]    @ r5 := previous_line[4*coluna]
     	    sub r7, r2, #1	            @ r7 := coluna-1
     	    ldr r8, [r6, r7, lsl #2]	@ r8 := previous_line[4*(coluna-1)]
-            add r4, r5, r8	            @ r4 := previous_line[coluna]+previous_line[coluna-1]
+            add r4, r5, r8	            @ r4 := previous_line[coluna] + previous_line[coluna-1]
             bl continue
 
             put_one:
                 mov r4, #1              @ r4 := 1
 
             continue:
-                ldr r5, =current_line       @ r6 := &current_line
-                add r5, r5, r2, lsl #2      @ r5 := &current_line[coluna*4]
-                str r4, [r5]                @ current_line[coluna*4] = r4 (inteiro)
+                ldr r5, =current_line       @ r5 := endereco do vetor atual
+                add r5, r5, r2, lsl #2      @ r5 := endereco do veotr atual + 4*coluna
+                str r4, [r5]                @ current_line[4*coluna] = r4
 
                 push {r0, r1, r2}           @ salva os registradores
-                mov r0, r4                  @ r0 := previous_line[coluna]+previous_line[coluna-1]
-                ldr r1, =output_buffer
-                mov r2, #16
-                bl itoa                     @ r0 := & para string e r1 := # de digitos
-                mov r9, r0
-                mov r8, r1
-                bl complete_word
-                mov r0, r9
-                mov r1, r8
-                bl write                    @ escreve r0
+                mov r0, r4                  @ r0 := r4
+                ldr r1, =output_buffer      @ r1 := endereco para escrever a string
+                mov r2, #16                 @ base hexadecimal
+                bl itoa                     @ r0 := endereco para string e r1 := numero de digitos
+                mov r9, r0                  @ r9 := r0
+                mov r8, r1                  @ r8 := r1
+                bl complete_word            @ completa com zeros até que palavra tenha tamanho 8
+                mov r0, r9                  @ r0 := r9 (retorna ao seu valor antes da chamda de complete_word)
+                mov r1, r8                  @ r1 := r8 (retorna ao seu valor antes da chamda de complete_word)
+                bl write                    @ escreve r0 (string)
                 pop {r0, r1, r2}            @ recupera os registradores
 
-                push {r0, r1, r2}
-                cmp r2, r1
-                bllt print_space
-                pop {r0, r1, r2}
+                push {r0, r1, r2}           @ salva os regristradores
+                cmp r2, r1                  @ coluna < linha?
+                bllt print_space            @ se sim, imprime um espaco
+                pop {r0, r1, r2}            @ recupera os registradores
 
-                add r2, r2, #1
-                bl column_loop
+                add r2, r2, #1              @ coluna ++
+                bl column_loop              @ repete o loop que itera sobre as colunas
 
         column_done:
             push {r0, r1, r2}
-            bl print_new_line
+            bl print_new_line           @ imprime um '\n'
             pop {r0, r1, r2}
             push {r0, r1, r2}
-            ldr r0, =current_line
-            ldr r1, =previous_line
-            bl copy_array
+            ldr r0, =current_line       @ r0 := endereco do vetor atual
+            ldr r1, =previous_line      @ r1 := endereco do vetor anterior
+            bl copy_array               @ copia o vetor atual para o vetor anterior
             pop {r0, r1, r2}
-            add r1, r1, #1
-            bl lines_loop
-    line_done:
+            add r1, r1, #1              @ linha ++
+            bl lines_loop               @ repete o loop que itera sobre as linhas
 
-    mov r0, #0             @ Status de retorno
-    b exit
+    line_done:
+        mov r0, #0             @ Status de retorno
+        b exit
 
 
 @ Imprime zeros para completar a palavra
@@ -103,14 +98,14 @@ _start:
 @   r1: tamanho do numero
 complete_word:
     push {r4, lr}
-    mov r4, r1
+    mov r4, r1                      @ r4 := tamanho do numero
     complete_word_loop:
-        cmp r4, #8
-        beq complete_word_done
-        ldr r0, =zero
-        mov r1, #1
-        bl write
-        add r4, r4, #1
+        cmp r4, #8                  @ r4 == 8?
+        beq complete_word_done      @ se sim, termina o loop
+        ldr r0, =zero               @ r0 := endereco da string '0'
+        mov r1, #1                  @ r1 := 1
+        bl write                    @ escreve um byte '0'
+        add r4, r4, #1              @ r4 ++
         bl complete_word_loop
     complete_word_done:
         pop {r4, lr}
@@ -126,32 +121,34 @@ copy_array:
     push {r4, r5, r6, r7, lr}
     mov r4, #0                      @ i := 0
     copy_loop:
-        cmp r4, r2                  @ Compara i e tamanho de current_line
+        cmp r4, r2                  @ i >= tamanho de current_line?
         bge copy_loop_end           @ 0 < i < tamanho de current_line
         mov r6, r4, lsl #2          @ r6 := 4*i
-        add r7, r1, r6              @ r7 := &previous_line + 4*i
+        add r7, r1, r6              @ r7 := endereco de previous_line + 4*i
         ldr r5, [r0, r6]            @ r5 := current_line[4*i]
         str r5, [r7]                @ Mem[previous_line+4i] = current_line[4i]
-        add r4, r4, #1              @ i++
+        add r4, r4, #1              @ i ++
         bl copy_loop
     copy_loop_end:
     pop {r4, r5, r6, r7, lr}
     mov pc, lr
 
 
+@ Imprime um caracter ' '
 print_space:
     push {lr}
-    ldr r0, =space
-    mov r1, #1
-    bl write
+    ldr r0, =space          @ r0 := endereco da string ' '
+    mov r1, #1              @ r1 := 1
+    bl write                @ escreve um byte ' '
     pop {pc}
 
 
+@ Imprime um caracter '\n'
 print_new_line:
     push {lr}
-    ldr r0, =new_line
-    mov r1, #1
-    bl write
+    ldr r0, =new_line       @ r0 := enderco da string '\n'
+    mov r1, #1              @ r1 := 1
+    bl write                @ escreve um byte '\n'
     pop {pc}
 
 
