@@ -95,7 +95,8 @@ copy_array:
     copy_loop:
         cmp r4, r2                  @ Compara i e tamanho de current_line
         bge copy_loop_end           @ 0 < i < tamanho de current_line
-        mul r6, r4, #4              @ r6 := 4*i
+        mov r5, #4
+        mul r6, r4, r5              @ r6 := 4*i
         ldr r5, [r0, r6]            @ r5 := &current_line + 4*i
         ldr r7, [r1, r6]            @ r7 := &previous_line + 4*i
         str r5, r7
