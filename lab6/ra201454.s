@@ -90,7 +90,7 @@ _start:
 @   r1: endereco de previous_line
 @   r2: tamanho de current_line
 copy_array:
-    push {r4, r5, r6, r7}
+    push {r4, r5, r6, r7, lr}
     mov r4, #0                      @ i := 0
     copy_loop:
         cmp r4, r2                  @ Compara i e tamanho de current_line
@@ -99,10 +99,12 @@ copy_array:
         mul r6, r4, r5              @ r6 := 4*i
         ldr r5, [r0, r6]            @ r5 := current_line[4*i]
         add r7, r1, r6              @ r7 := &previous_line + 4*i
-        str r5, [r7]
-        add r4, r4, #1
+        str r5, [r7]                @ Mem[previous_line+4i] = current_line[4i]
+        add r4, r4, #1              @ i++
+        bl copy_loop
     copy_loop_end:
-    pop {r4, r5, r6, r7}
+    pop {r4, r5, r6, r7, lr}
+    mov pc, lr
 
 
 @ Divide R0 por R1, subtraindo sucessivamente
