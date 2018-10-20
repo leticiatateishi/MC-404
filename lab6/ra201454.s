@@ -73,10 +73,10 @@ _start:
                 bl write                    @ escreve r0
                 pop {r0, r1, r2}            @ recupera os registradores
 
-                @push {r0, r1, r2}
-                @cmp r2, r1
-                @blt print_space
-                @pop {r0, r1, r2}
+                push {r0, r1, r2}
+                cmp r2, r1
+                bllt print_space
+                pop {r0, r1, r2}
 
                 add r2, r2, #1
                 bl column_loop
