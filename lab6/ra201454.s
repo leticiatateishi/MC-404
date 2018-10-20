@@ -42,7 +42,7 @@ _start:
     	    sub r7, r2, #1	            @ r7 := coluna-1
     	    ldr r8, [r6, r7, lsl #2]	@ r8 := previous_line[4*(coluna-1)]
             add r4, r5, r8	            @ r4 := previous_line[coluna]+previous_line[coluna-1]
-            b continue
+            bl continue
 
             put_one:
                 mov r4, #1              @ r4 := 1
