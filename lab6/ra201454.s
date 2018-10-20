@@ -90,7 +90,7 @@ _start:
 @   r1: endereco de previous_line
 @   r2: tamanho de current_line
 copy_array:
-    push {r4, r5, r6}
+    push {r4, r5, r6, r7}
     mov r4, #0                      @ i := 0
     copy_loop:
         cmp r4, r2                  @ Compara i e tamanho de current_line
@@ -102,7 +102,7 @@ copy_array:
         str r5, r7
         add r4, r4, #1
     copy_loop_end:
-    pop {r4, r5, r6}
+    pop {r4, r5, r6, r7}
 
 
 @ Divide R0 por R1, subtraindo sucessivamente
