@@ -57,12 +57,12 @@ _start:
                 ldr r1, =output_buffer
                 mov r2, #16
                 bl itoa
-                mov r1, #4                  @ r1 := 1 (numero de bytes a serem escritos)
+                mov r1, #4                  @ r1 := 4 (numero de bytes a serem escritos)
                 bl write                    @ escreve r0
                 pop {r0, r1, r2}            @ recupera os registradores
 
                 add r2, r2, #1
-                b column_loop
+                bl column_loop
 
         column_done:
             push {r0, r1, r2}
@@ -71,7 +71,7 @@ _start:
             bl copy_array
             pop {r0, r1, r2}
             add r1, r1, #1
-            b lines_loop
+            bl lines_loop
     line_done:
 
 
