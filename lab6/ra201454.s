@@ -97,9 +97,9 @@ copy_array:
         bge copy_loop_end           @ 0 < i < tamanho de current_line
         mov r5, #4
         mul r6, r4, r5              @ r6 := 4*i
-        ldr r5, [r0, r6]            @ r5 := &current_line + 4*i
-        ldr r7, [r1, r6]            @ r7 := &previous_line + 4*i
-        str r5, r7
+        ldr r5, [r0, r6]            @ r5 := current_line[4*i]
+        add r7, r1, r6              @ r7 := &previous_line + 4*i
+        str r5, [r7]
         add r4, r4, #1
     copy_loop_end:
     pop {r4, r5, r6, r7}
