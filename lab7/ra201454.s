@@ -15,9 +15,11 @@ ajudaORobinson:
 
     push {r0, r1, lr}
 
+
     bl compare_coordinates
     cmp r0, #0
     bne continue
+    mov r0, #0
     pop {r0, r1, pc}
 
     continue:
@@ -25,11 +27,37 @@ ajudaORobinson:
         mov r1, r0                  @ R1 := posicao y do Robinson
         bl posicaoXRobinson         @ R0 := posicao x do Robinson
         bl daParaPassar             @ R0 == 1 se dá pra passar
-        cmp r0, #0                  @ Se não dá pra passar, retorna
+        cmp r0, #0                  @ Se não dá pra passar
+        moveq r0, 1                 @ R0 := 1
         beq return
 
+        @ Se dá pra passar, visita os vizinhos
+
+
         return:
-            pop {pc}
+            pop {r0, r1, pc}
+
+
+@ Visita os vizinhos da posição atual
+@ Parametros:
+@   R0: posicao x atual
+@   R1: posicao y atual
+visit_neighbours:
+    push {r4, r5, r6, lr}
+    sub r4, r0, #1              @ R4 := x-1
+    mov r5, #0                  @ i := 0
+    loop:
+        cmp r5, #3              @ while i < 3
+        beq end_loop
+        add r0, r4, r5          @ R0 := R4 - i
+        bl foiVisitado          @ posicao (R0, R1) já foi visitada
+        cmp r0, #0              @ se a posicao nao foi visitada
+        moveq r0, r4
+        bleq ajudaORobinson
+
+
+    pop {r4-r7, pc}
+
 
 
 @ Compara as coordenadas atuais do Robinson com as coordenadas do local
