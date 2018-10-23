@@ -13,6 +13,43 @@ string_space:   .asciz "  "         @ String contedo espaço
 
 ajudaORobinson:
 
+    push {r0, r1, lr}
+
+    bl compare_coordinates
+    cmp r0, #0
+    bne continue
+    pop {r0, r1, pc}
+
+    continue:
+        bl posicaoYRobinson         @ R0 := posicao y do Robinson
+        mov r1, r0                  @ R1 := posicao y do Robinson
+        bl posicaoXRobinson         @ R0 := posicao x do Robinson
+        bl daParaPassar             @ R0 == 1 se dá pra passar
+        cmp r0, #0                  @ Se não dá pra passar, retorna
+        beq return
+
+        return:
+            pop {pc}
+
+
+@ Compara as coordenadas atuais do Robinson com as coordenadas do local
+@ Parametros:
+@   R1: coordenada x atual
+@   R2: coordenada y atual
+@ Retorno:
+@   R0 == 1, se o local atual não é o final ou R0 == 0 caso contrario
+compare_coordinates:
+    push {lr}
+    bl posicaoXLocal                @ R0 := posição x do local
+    cmp r0, r1                      @ R0 != R1?
+    mov r0, #1
+    bne return_comparation
+    bl posicaoYLocal                @ R0 := posição y do local
+    cmp r0, r2                      @ R0 != R1?
+    moveq r0, #0
+
+    return_comparation:
+        pop {pc}
 
 @ Imprime uma quebra de linha
 print_newline:
@@ -96,7 +133,8 @@ exit:
 @ Parametros
 @   r0: endereço do buffer contendo a string que será convertida em inteiro
 @   r1: tamanho da string (numero de caracteres)
-@   r2: base do numero que a string se encontra (maximo: 16). Os digitos A-F, devem ser maiusculos!
+@   r2: base do numero que a string se encontra (maximo: 16).
+@   Os digitos A-F, devem ser maiusculos!
 @ Retorno:
 @   r0: valor da string, em inteiro (sem sinal)
 atoi:
