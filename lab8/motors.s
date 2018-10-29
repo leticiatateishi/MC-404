@@ -31,40 +31,47 @@ _start:                         @ main
         mov r7, #124            @ Identifica a syscall 124 (write_motors).
         svc 0x0                 @ Faz a chamada da syscall.
 
-        ldr r6, =1500           @ r6 <- 1200 (Limiar para parar o robo)
 
 loop:
-        mov r0, #3              @ Define em r0 o identificador do sonar a ser consultado.
-        mov r7, #125            @ Identifica a syscall 125 (read_sonar).
-        svc 0x0
-        mov r5, r0              @ r5 := distancia do 3
-
-        mov r0, #4              @ r0 := distancia do 4
-        mov r7, #125
-        svc 0x0
-
-        cmp r5, r0              @ Compara o retorno (em r0) com r5.
-        bge min                 @ Se distancia do 3 >= distancia do 4: Salta pra min
-        mov r0, r5              @ Senao: r0 := distancia do 3
+        ldr r6, =1500           @ r6 <- 1200 (Limiar para parar o robo)
+        mov r0, #3
+        mov r1, #4
+        bl read_sonar
+        cmp r0, r5
+        moveq r4, #3
+        movne r4, #4
 
 min:
         cmp r0, r6              @ Compara r0 com r6
+        blt turn                @ Se r0 < limiar: muda de direcao
+
+        mov r0, #2
+        mov r1, #5
+        bl read_sonar
+        ldr r6, =200
+        cmp r0, r6              @ Compara r0 com r6
         bgt go_ahead                @ Se r0 < limiar: muda de direcao
-
         cmp r0, r5
-        bleq turn_right
-        blne turn_left
-        mov r7, #124
-        svc 0x0
-        turn_loop:
-            mov r0, r4              @ r0 := distancia detectada pelo sonar 3
-            mov r7, #125            @ Identifica a syscall 125 (read_sonar).
-            svc 0x0
-            cmp r0, r6
-            blt turn_loop
-        b loop
+        moveq r4, #2
+        movne r4, #5
 
-        go_ahead:                        @ Senao define uma velocidade para os 2 motores
+        turn:
+            cmp r0, r5
+            bleq turn_right
+            blne turn_left
+            mov r7, #124
+            @ eu amo meu amorzinho <3<3<3
+            svc 0x0
+            turn_loop:
+                mov r0, r4              @ r0 := sonar de menor distancia
+                mov r7, #125            @ Identifica a syscall 125 (read_sonar).
+                svc 0x0
+                cmp r0, r6
+                blt turn_loop
+            b loop
+
+
+        go_ahead:
             mov r0, #36
             mov r1, #36
             mov r7, #124
@@ -72,16 +79,38 @@ min:
 
             b loop                  @ Refaz toda a logica
 
+@ Parametros:
+@   r0: numero do primeiro sonar
+@   r1: numero do segundo sonar
+@ Retorno:
+@   r0: menor distancia
+read_sonar:
+
+    push {lr}
+
+    mov r7, #125            @ Identifica a syscall 125 (read_sonar).
+    svc 0x0                 @ chama a syscall para o primeiro sonar (em r0)
+    mov r5, r0              @ r5 := distancia do primeiro sonar
+
+    mov r0, r1              @ r0 := numero do outro sonar
+    mov r7, #125
+    svc 0x0                 @ chama a syscall para o segundo sonar
+
+    cmp r0, r5              @ se r0 > r5
+    movgt r0, r5            @ r0 := r5
+
+    pop {pc}
+
+
+
 turn_right:
         push {lr}
         mov r0, #0
         mov r1, #30
-        mov r4, #3
         pop {pc}
 
 turn_left:
         push {lr}
         mov r0, #30           @ Se r0 != r5, distancia do sonar 4 é a menor
         mov r1, #0
-        mov r4, #4
         pop {pc}
