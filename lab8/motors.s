@@ -85,12 +85,3 @@ turn_left:
         mov r1, #0
         mov r4, #4
         pop {pc}
-
-end:                            @ Parar o robo
-        mov r0, #0
-        mov r1, #0
-        mov r7, #124
-        svc 0x0
-
-        mov r7, #1              @ syscall exit
-        svc 0x0
