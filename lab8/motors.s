@@ -52,8 +52,17 @@ min:
         bgt go_ahead                @ Se r0 < limiar: muda de direcao
 
         cmp r0, r5
-        beq turn_right
-        bne turn_left
+        bleq turn_right
+        blne turn_left
+        mov r7, #124
+        svc 0x0
+        turn_loop:
+            mov r0, r4              @ r0 := distancia detectada pelo sonar 3
+            mov r7, #125            @ Identifica a syscall 125 (read_sonar).
+            svc 0x0
+            cmp r0, r6
+            blt turn_loop
+        b loop
 
         go_ahead:                        @ Senao define uma velocidade para os 2 motores
             mov r0, #36
@@ -64,30 +73,18 @@ min:
             b loop                  @ Refaz toda a logica
 
 turn_right:
+        push {lr}
         mov r0, #0
         mov r1, #30
-        mov r7, #124
-        svc 0x0
-        turn_loop_right:
-            mov r0, #3              @ r0 := distancia detectada pelo sonar 3
-            mov r7, #125            @ Identifica a syscall 125 (read_sonar).
-            svc 0x0
-            cmp r0, r6
-            blt turn_loop_right
-        b loop
+        mov r4, #3
+        pop {pc}
 
 turn_left:
+        push {lr}
         mov r0, #30           @ Se r0 != r5, distancia do sonar 4 é a menor
         mov r1, #0
-        mov r7, #124
-        svc 0x0
-        turn_loop_left:
-            mov r0, #4              @ r0 := distancia detectada pelo sonar 3
-            mov r7, #125            @ Identifica a syscall 125 (read_sonar).
-            svc 0x0
-            cmp r0, r6
-            blt turn_loop_left
-        b loop
+        mov r4, #4
+        pop {pc}
 
 end:                            @ Parar o robo
         mov r0, #0
