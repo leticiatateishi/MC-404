@@ -1,10 +1,11 @@
 
 .data
-contador:   .skip 32
-GPT_CR:     .word 0x53FA0000
-GPT_PR:     .word 0x53FA0004
-GPT_OCR1:   .word 0x53FA0010
-GPT_IR:     .word 0x53FA000C
+contador:   .word 0
+.set GPT_CR, 0x53FA0000
+.set GPT_PR, 0x53FA0004
+.set GPT_SR, 0x53FA0008
+.set GPT_OCR1, 0x53FA0010
+.set GPT_IR, 0x53FA000C
 
 .text
 .org 0x0
@@ -24,35 +25,38 @@ interrupt_vector:
 RESET_HANDLER:
 
     @ Zera o contador
-    ldr r2, =contador
-    mov r0, #0
-    str r0, [r2]
+    @ldr r2, =contador
+    @mov r0, #0
+    @str r0, [r2]
 
     @Faz o registrador que aponta para a tabela de interrupções apontar para a tabela interrupt_vector
     ldr r0, =interrupt_vector
     mcr p15, 0, r0, c12, c0, 0
 
     @ enviar os dados pro gpt
-    ldr r1, =GPT_CR
-    mov r2, #0x41
-    mov r2, [r1]
+    ldr r1, =GPT_CR                @ r1 := endereco de GPT_CR
+    mov r2, #0x41                       @
+    str r2, [r1]
 
     ldr r1, =GPT_PR
     mov r2, #0
-    mov r2, [r1]
+    str r2, [r1]
 
     ldr r1, =GPT_OCR1
     mov r2, #0x64
-    mov r2, [r1]
+    str r2, [r1]
 
     ldr r1, =GPT_IR
     mov r2, #1
-    mov r2, [r1]
+    str r2, [r1]
 
     @ Ajustar a pilha do modo IRQ.
     @ Você deve iniciar a pilha do modo IRQ aqui. Veja abaixo como usar a instrução MSR para chavear de modo.
+    fim_pilha:
+        .skip 416
+    inicio_pilha:
 
-    
+
     @ ...SET_TZIC:
     @ Constantes para os enderecos do TZIC
     .set TZIC_BASE,             0x0FFFC000
@@ -97,5 +101,30 @@ RESET_HANDLER:
     @instrucao msr - habilita interrupcoes
     msr  CPSR_c, #0x13       @ SUPERVISOR mode, IRQ/FIQ enabled
 
+    laco:
+        b laco
 
     @@@...continua tratando o reset
+
+
+IRQ_HANDLER:
+    ldr r13, =inicio_pilha
+    push {r0-r12}
+    @str r0, [r13, #-4]
+    @str r1, [r13, #-4]
+
+    ldr r0, =GPT_SR
+    mov r1, #1
+    str r1, [r0]
+
+    ldr r0, =contador
+    ldr r1, [r0]
+    mov r0, #1
+
+    add r0, r0, r1
+    ldr r1, =contador
+    str r0, [r1]
+
+    pop {r0-r12}
+
+    movs pc, lr
