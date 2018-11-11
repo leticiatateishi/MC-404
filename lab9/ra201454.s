@@ -1,6 +1,9 @@
 
 .data
 contador:       .word 0
+fim_pilha:                      @ pilha do IRQ
+    .skip 416                   @ tamanho de 13 registradores
+inicio_pilha:
 .set GPT_CR,    0x53FA0000
 .set GPT_PR,    0x53FA0004
 .set GPT_SR,    0x53FA0008
@@ -42,11 +45,7 @@ RESET_HANDLER:
     mov r2, #1                      @ habilita a interrupção do GPT
     str r2, [r1]
 
-
-    fim_pilha:                      @ pilha do IRQ
-        .skip 416                   @ tamanho de 13 registradores
-    inicio_pilha:
-
+    ldr r13, =inicio_pilha          @ R13_IRQ aponta para o inicio da pilha
 
 
 SET_TZIC:
@@ -88,7 +87,7 @@ SET_TZIC:
 
 
 IRQ_HANDLER:
-    ldr r13, =inicio_pilha          @ R13_IRQ aponta para o inicio da pilha
+
     push {r0-r12}                   @ salva os registradores na pilha do IRQ
 
     ldr r0, =GPT_SR                 @ GPT_SR := 1
