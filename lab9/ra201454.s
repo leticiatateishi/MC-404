@@ -2,7 +2,7 @@
 .data
 contador:       .word 0
 fim_pilha:                      @ pilha do IRQ
-    .skip 416                   @ tamanho de 13 registradores
+    .skip 60                    @ para 13 registradores
 inicio_pilha:
 .set GPT_CR,    0x53FA0000
 .set GPT_PR,    0x53FA0004
